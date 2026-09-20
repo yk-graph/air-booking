@@ -5,26 +5,3 @@ body {
   color: #171717;
   font-family: Arial, Helvetica, sans-serif;
 }
-
-.rdp-fullwidth .rdp-months,
-.rdp-fullwidth .rdp-month,
-.rdp-fullwidth .rdp-month_grid {
-  width: 100%;
-}
-.rdp-fullwidth .rdp-month_grid {
-  table-layout: fixed;
-}
-.rdp-fullwidth .rdp-day,
-.rdp-fullwidth .rdp-weekday {
-  width: auto;
-}
-.rdp-fullwidth .rdp-day {
-  text-align: center;
-}
-.rdp-fullwidth .rdp-day_button {
-  width: 3rem;
-  height: 3rem;
-  max-width: none;
-  border-radius: 50%;
-  margin-inline: auto;
-}
