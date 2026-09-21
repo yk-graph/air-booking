@@ -63,7 +63,7 @@ model Session {
   userAgent   String?
   ipAddress   String?
   createdAt   DateTime @default(now())
-  // has one relation
+  // belongs to relation
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId])
@@ -77,7 +77,7 @@ model Token {
   expiresAt   DateTime
   usedAt      DateTime?
   createdAt   DateTime  @default(now())
-  // has one relation
+  // belongs to relation
   account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId, type])
@@ -90,7 +90,7 @@ model Staff {
   name        String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  // has one relation
+  // belongs to relation
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
@@ -121,7 +121,7 @@ model Flight {
   // has many relations
   seats                Seat[]
   tickets              Ticket[]
-  // has one relations
+  // belongs to relations
   originAirport        Airport      @relation("origin", fields: [originAirportId], references: [id])
   destinationAirport   Airport      @relation("destination", fields: [destinationAirportId], references: [id])
 
@@ -139,9 +139,10 @@ model Seat {
   isBlocked  Boolean    @default(false)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  // has one relations
-  flight     Flight     @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  // has one relation
   ticket     Ticket?
+  // belongs to relation
+  flight     Flight     @relation(fields: [flightId], references: [id], onDelete: Cascade)
 
   @@unique([flightId, seatRow, seatColumn])
 }
@@ -167,7 +168,7 @@ model Booking {
   updatedAt      DateTime      @updatedAt
   // has many relations
   tickets        Ticket[]
-  // has one relation
+  // belongs to relation
   account        Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
 
   @@index([accountId])
@@ -181,7 +182,7 @@ model Ticket {
   price     Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // has one relations
+  // belongs to relations
   flight    Flight   @relation(fields: [flightId], references: [id])
   seat      Seat     @relation(fields: [seatId], references: [id])
   booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
