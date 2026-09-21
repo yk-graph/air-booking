@@ -40,18 +40,17 @@ enum TokenType {
 }
 
 model Account {
-  id              String      @id @default(cuid())
-  email           String      @unique
+  id              String    @id @default(cuid())
+  email           String    @unique
   passwordHash    String
-  role            Role        @default(USER)
+  role            Role      @default(USER)
   emailVerifiedAt DateTime?
   sessions        Session[]
   tokens          Token[]
-  passengers      Passenger[]
   bookings        Booking[]
   staff           Staff?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Session {
@@ -92,8 +91,8 @@ model Staff {
 
 model Passenger {
   id             String    @id @default(cuid())
-  accountId      String?
-  account        Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  bookingId      String
+  booking        Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   firstName      String
   lastName       String
   middleName     String?
@@ -108,8 +107,7 @@ model Passenger {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  @@unique([countryOfIssue, passportNumber])
-  @@index([accountId])
+  @@index([bookingId])
 }
 
 model Airport {
@@ -169,7 +167,7 @@ model Booking {
   contactPhone String?
   status       BookingStatus @default(PENDING)
   totalPrice   Decimal       @db.Decimal(10, 2)
-  tickets      Ticket[]
+  passengers   Passenger[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -178,19 +176,16 @@ model Booking {
 
 model Ticket {
   id          String    @id @default(cuid())
-  bookingId   String
-  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   flightId    String
   flight      Flight    @relation(fields: [flightId], references: [id])
   seatId      String    @unique
   seat        Seat      @relation(fields: [seatId], references: [id])
   passengerId String
-  passenger   Passenger @relation(fields: [passengerId], references: [id])
+  passenger   Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
   price       Decimal   @db.Decimal(10, 2)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([bookingId])
   @@index([flightId])
   @@index([passengerId])
 }
