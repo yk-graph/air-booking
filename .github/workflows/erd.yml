@@ -1,0 +1,51 @@
+name: Deploy ERD to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'prisma/schema.prisma'
+      - '.github/workflows/erd.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: erd-pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    name: Build & deploy ERD
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # Liam bundles a Prisma 6 parser that rejects a Prisma 7 datasource
+      # without `url`, so build from a temporary copy with `url` restored.
+      - name: Prepare schema copy for Liam
+        run: |
+          mkdir -p .liam
+          perl -0pe 's/datasource db \{\n  provider = "mysql"\n\}/datasource db {\n  provider = "mysql"\n  url      = env("DATABASE_URL")\n}/' prisma/schema.prisma > .liam/schema.prisma
+
+      - name: Build ERD
+        run: npx -y @liam-hq/cli@latest erd build --format prisma --input .liam/schema.prisma --output-dir dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
