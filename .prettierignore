@@ -9,6 +9,7 @@ node_modules/
 # Generated / lockfiles
 package-lock.json
 next-env.d.ts
+lib/generated/
 
 # Misc
 *.log

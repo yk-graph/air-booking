@@ -40,5 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma generated client (run `prisma generate`)
+/lib/generated
+
+# liam erd build output
+/dist
+/.liam
+
 # keep the example file in git
 !.env.example
