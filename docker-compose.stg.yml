@@ -1,7 +1,7 @@
 services:
   web-stg:
-    image: ghcr.io/yk-graph/air-flight-booking-web:staging
-    container_name: air-flight-booking-web-stg
+    image: ghcr.io/yk-graph/air-booking-web:staging
+    container_name: air-booking-web-stg
     ports:
       - '4210:4000'
     env_file:
