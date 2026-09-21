@@ -43,19 +43,19 @@ jobs:
           file: Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/yk-graph/air-flight-booking-web:${{ steps.meta.outputs.tag }}
+          tags: ghcr.io/yk-graph/air-booking-web:${{ steps.meta.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy:
     name: Deploy to Mac mini
     needs: build
-    runs-on: [self-hosted, macOS, ARM64, air-flight-booking]
+    runs-on: [self-hosted, macOS, ARM64, air-booking]
 
     steps:
       - name: Deploy
         run: |
-          cd ~/server/srv/air-flight-booking
+          cd ~/server/srv/air-booking
           git fetch origin
 
           if [ "${{ github.ref_name }}" = "staging" ]; then
