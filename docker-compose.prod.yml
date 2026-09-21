@@ -1,0 +1,11 @@
+services:
+  web-prod:
+    image: ghcr.io/yk-graph/air-flight-booking-web:latest
+    container_name: air-flight-booking-web-prod
+    ports:
+      - '4200:4000'
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

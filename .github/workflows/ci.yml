@@ -31,5 +31,5 @@ jobs:
       - name: Run Format Check
         run: npm run format:check
 
-      # - name: Run Build
-      #   run: npm run build
+      - name: Run Build
+        run: npm run build
