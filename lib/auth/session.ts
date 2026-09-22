@@ -46,7 +46,17 @@ export async function getCurrentAccount() {
 
   const session = await prisma.session.findUnique({
     where: { hashedToken: hashToken(token) },
-    include: { account: true },
+    select: {
+      expiresAt: true,
+      account: {
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          emailVerifiedAt: true,
+        },
+      },
+    },
   })
 
   if (!session || session.expiresAt < new Date()) return null
