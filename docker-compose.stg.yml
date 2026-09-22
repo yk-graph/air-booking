@@ -1,9 +1,28 @@
 services:
+  db-stg:
+    image: mysql:8.4
+    container_name: air-booking-db-stg
+    env_file:
+      - .env.staging
+    environment:
+      - MYSQL_DATABASE=air_booking
+    volumes:
+      - air-booking-stg-mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h localhost -p"$$MYSQL_ROOT_PASSWORD"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   migrate-stg:
     image: ghcr.io/yk-graph/air-booking-migrator:staging
     container_name: air-booking-migrate-stg
     env_file:
       - .env.staging
+    depends_on:
+      db-stg:
+        condition: service_healthy
     restart: 'no'
 
   web-stg:
@@ -15,4 +34,11 @@ services:
       - .env.staging
     environment:
       - NODE_ENV=production
+    depends_on:
+      db-stg:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  air-booking-stg-mysql-data:
+    name: air-booking-stg-mysql-data
