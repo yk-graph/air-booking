@@ -1,8 +1,9 @@
 import 'server-only'
 
-import { createHash, randomBytes } from 'node:crypto'
 import { cookies } from 'next/headers'
+import { createHash, randomBytes } from 'node:crypto'
 
+import { Account } from '@/lib/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 
 const SESSION_COOKIE = 'session'
@@ -39,7 +40,9 @@ export async function createSession(
   })
 }
 
-export async function getCurrentAccount() {
+export type CurrentAccount = Pick<Account, 'id' | 'email' | 'role' | 'emailVerifiedAt'>
+
+export async function getCurrentAccount(): Promise<CurrentAccount | null> {
   const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
