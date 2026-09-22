@@ -60,6 +60,12 @@ export function LoginForm() {
           Sign up
         </Link>
       </p>
+
+      <p className="text-sm">
+        <Link href="/forgot-password" className="underline">
+          Forgot your password?
+        </Link>
+      </p>
     </form>
   )
 }
