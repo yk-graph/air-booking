@@ -45,23 +45,26 @@ model Account {
   passwordHash    String
   role            Role      @default(USER)
   emailVerifiedAt DateTime?
-  sessions        Session[]
-  tokens          Token[]
-  bookings        Booking[]
-  staff           Staff?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  // has many relations
+  bookings        Booking[]
+  sessions        Session[]
+  tokens          Token[]
+  // has one relation
+  staff           Staff?
 }
 
 model Session {
   id          String   @id @default(cuid())
   accountId   String
-  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   hashedToken String   @unique
   expiresAt   DateTime
   userAgent   String?
   ipAddress   String?
   createdAt   DateTime @default(now())
+  // belongs to relation
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId])
 }
@@ -69,12 +72,13 @@ model Session {
 model Token {
   id          String    @id @default(cuid())
   accountId   String
-  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   type        TokenType
   hashedToken String    @unique
   expiresAt   DateTime
   usedAt      DateTime?
   createdAt   DateTime  @default(now())
+  // belongs to relation
+  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([accountId, type])
 }
@@ -82,17 +86,73 @@ model Token {
 model Staff {
   id          String   @id @default(cuid())
   accountId   String   @unique
-  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   staffNumber String   @unique
   name        String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  // belongs to relation
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
-model Passenger {
-  id             String    @id @default(cuid())
-  bookingId      String
-  booking        Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+model Airport {
+  id               String   @id @default(cuid())
+  code             String   @unique
+  name             String
+  city             String
+  country          String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  // has many relations
+  departingFlights Flight[] @relation("origin")
+  arrivingFlights  Flight[] @relation("destination")
+}
+
+model Flight {
+  id                   String       @id @default(cuid())
+  flightNumber         String
+  originAirportId      String
+  destinationAirportId String
+  departureAt          DateTime
+  arrivalAt            DateTime
+  basePrice            Decimal      @db.Decimal(10, 2)
+  status               FlightStatus @default(SCHEDULED)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  // has many relations
+  seats                Seat[]
+  tickets              Ticket[]
+  // belongs to relations
+  originAirport        Airport      @relation("origin", fields: [originAirportId], references: [id])
+  destinationAirport   Airport      @relation("destination", fields: [destinationAirportId], references: [id])
+
+  @@index([originAirportId])
+  @@index([destinationAirportId])
+}
+
+model Seat {
+  id         String     @id @default(cuid())
+  flightId   String
+  seatRow    Int
+  seatColumn String
+  cabinClass CabinClass @default(ECONOMY)
+  addPrice   Decimal    @default(0) @db.Decimal(10, 2)
+  isBlocked  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  // has one relation
+  ticket     Ticket?
+  // belongs to relation
+  flight     Flight     @relation(fields: [flightId], references: [id], onDelete: Cascade)
+
+  @@unique([flightId, seatRow, seatColumn])
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  reference      String        @unique
+  accountId      String?
+  contactEmail   String
+  contactPhone   String?
   firstName      String
   lastName       String
   middleName     String?
@@ -102,90 +162,31 @@ model Passenger {
   countryOfIssue String?
   dateOfIssue    DateTime?
   dateOfExpiry   DateTime?
-  contactEmail   String?
+  status         BookingStatus @default(PENDING)
+  totalPrice     Decimal       @db.Decimal(10, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  // has many relations
   tickets        Ticket[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@index([bookingId])
-}
-
-model Airport {
-  id               String   @id @default(cuid())
-  code             String   @unique
-  name             String
-  city             String
-  country          String
-  departingFlights Flight[] @relation("origin")
-  arrivingFlights  Flight[] @relation("destination")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
-
-model Flight {
-  id                   String       @id @default(cuid())
-  flightNumber         String
-  originAirportId      String
-  destinationAirportId String
-  originAirport        Airport      @relation("origin", fields: [originAirportId], references: [id])
-  destinationAirport   Airport      @relation("destination", fields: [destinationAirportId], references: [id])
-  departureAt          DateTime
-  arrivalAt            DateTime
-  basePrice            Decimal      @db.Decimal(10, 2)
-  status               FlightStatus @default(SCHEDULED)
-  seats                Seat[]
-  tickets              Ticket[]
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-
-  @@index([originAirportId])
-  @@index([destinationAirportId])
-}
-
-model Seat {
-  id         String     @id @default(cuid())
-  flightId   String
-  flight     Flight     @relation(fields: [flightId], references: [id], onDelete: Cascade)
-  seatRow    Int
-  seatColumn String
-  cabinClass CabinClass @default(ECONOMY)
-  addPrice   Decimal    @default(0) @db.Decimal(10, 2)
-  isBlocked  Boolean    @default(false)
-  ticket     Ticket?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  @@unique([flightId, seatRow, seatColumn])
-}
-
-model Booking {
-  id           String        @id @default(cuid())
-  reference    String        @unique
-  accountId    String?
-  account      Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  contactEmail String
-  contactPhone String?
-  status       BookingStatus @default(PENDING)
-  totalPrice   Decimal       @db.Decimal(10, 2)
-  passengers   Passenger[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  // belongs to relation
+  account        Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
 
   @@index([accountId])
 }
 
 model Ticket {
-  id          String    @id @default(cuid())
-  flightId    String
-  flight      Flight    @relation(fields: [flightId], references: [id])
-  seatId      String    @unique
-  seat        Seat      @relation(fields: [seatId], references: [id])
-  passengerId String
-  passenger   Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
-  price       Decimal   @db.Decimal(10, 2)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  flightId  String
+  seatId    String   @unique
+  bookingId String
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // belongs to relations
+  flight    Flight   @relation(fields: [flightId], references: [id])
+  seat      Seat     @relation(fields: [seatId], references: [id])
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([flightId])
-  @@index([passengerId])
+  @@index([bookingId])
 }

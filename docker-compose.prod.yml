@@ -1,11 +1,44 @@
 services:
+  db-prod:
+    image: mysql:8.4
+    container_name: air-booking-db-prod
+    env_file:
+      - .env.production
+    environment:
+      - MYSQL_DATABASE=air_booking
+    volumes:
+      - air-booking-prod-mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h localhost -p"$$MYSQL_ROOT_PASSWORD"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate-prod:
+    image: ghcr.io/yk-graph/air-booking-migrator:latest
+    container_name: air-booking-migrate-prod
+    env_file:
+      - .env.production
+    depends_on:
+      db-prod:
+        condition: service_healthy
+    restart: 'no'
+
   web-prod:
     image: ghcr.io/yk-graph/air-booking-web:latest
     container_name: air-booking-web-prod
     ports:
       - '4200:4000'
     env_file:
-      - .env
+      - .env.production
     environment:
       - NODE_ENV=production
+    depends_on:
+      db-prod:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  air-booking-prod-mysql-data:
+    name: air-booking-prod-mysql-data
