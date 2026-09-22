@@ -5,7 +5,7 @@ services:
     ports:
       - '4210:4000'
     env_file:
-      - .env
+      - .env.staging
     environment:
       - NODE_ENV=production
     restart: unless-stopped
