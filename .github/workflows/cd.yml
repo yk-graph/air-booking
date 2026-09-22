@@ -41,9 +41,22 @@ jobs:
         with:
           context: .
           file: Dockerfile
+          target: runner
           platforms: linux/arm64
           push: true
           tags: ghcr.io/yk-graph/air-booking-web:${{ steps.meta.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push migrator
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: migrator
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/yk-graph/air-booking-migrator:${{ steps.meta.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -62,12 +75,14 @@ jobs:
             git switch staging
             git pull origin staging
             docker compose -f docker-compose.stg.yml pull
-            docker compose -f docker-compose.stg.yml up -d
+            docker compose -f docker-compose.stg.yml run --rm migrate-stg
+            docker compose -f docker-compose.stg.yml up -d web-stg
           elif [ "${{ github.ref_name }}" = "main" ]; then
             git switch main
             git pull origin main
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml run --rm migrate-prod
+            docker compose -f docker-compose.prod.yml up -d web-prod
           fi
 
       - name: Clean up dangling images
