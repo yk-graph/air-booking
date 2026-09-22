@@ -26,9 +26,9 @@ export async function createEmailVerificationToken(accountId: string): Promise<s
   return token
 }
 
-type VerifyResult = 'verified' | 'invalid' | 'expired' | 'used'
+export type VerifyResult = 'verified' | 'invalid' | 'expired' | 'used' | 'error'
 
-export async function consumeEmailVerificationToken(token: string): Promise<VerifyResult> {
+export async function verifyEmail(token: string): Promise<VerifyResult> {
   const record = await prisma.token.findUnique({
     where: { hashedToken: hashToken(token) },
   })
