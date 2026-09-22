@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { createEmailVerificationToken, createPasswordResetToken } from '@/lib/auth/token'
-import { EMAIL_FROM, resend } from '@/lib/email/resend'
+import { EMAIL_FROM, getResend } from '@/lib/email/resend'
 
 const APP_URL = process.env.APP_URL ?? 'http://localhost:3000'
 
@@ -12,7 +12,7 @@ export async function sendAccountVerification(accountId: string, email: string):
 }
 
 export async function sendVerificationEmail(to: string, verifyUrl: string): Promise<void> {
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject: 'Verify your email address',
@@ -32,7 +32,7 @@ export async function sendPasswordResetEmail(accountId: string, email: string): 
   const token = await createPasswordResetToken(accountId)
   const resetUrl = `${APP_URL}/reset-password?token=${token}`
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to: email,
     subject: 'Reset your password',
