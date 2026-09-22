@@ -7,7 +7,7 @@ const APP_URL = process.env.APP_URL ?? 'http://localhost:3000'
 
 export async function sendAccountVerification(accountId: string, email: string): Promise<void> {
   const token = await createEmailVerificationToken(accountId)
-  const verifyUrl = `${APP_URL}/verify-email?token=${token}`
+  const verifyUrl = `${APP_URL}/api/verify-email?token=${token}`
   await sendVerificationEmail(email, verifyUrl)
 }
 

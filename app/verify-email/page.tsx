@@ -10,7 +10,7 @@ const MESSAGES: Record<VerifyResult, string> = {
   error: 'Something went wrong. Please try again later.',
 }
 
-export default async function VerifyEmailResultPage({
+export default async function VerifyEmailPage({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string }>
