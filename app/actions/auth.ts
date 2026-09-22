@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation'
 import * as z from 'zod'
 
 import { hashPassword, verifyPassword } from '@/lib/auth/password'
-import { createSession, destroySession } from '@/lib/auth/session'
+import { createSession, destroySession, getCurrentAccount } from '@/lib/auth/session'
+import { sendAccountVerification } from '@/lib/email/send'
 import { prisma } from '@/lib/prisma'
 import { loginSchema, registerSchema, type AuthFormState } from '@/lib/validations/auth'
 
@@ -31,6 +32,13 @@ export async function signup(_state: AuthFormState, formData: FormData): Promise
     })
 
     await createSession(account.id)
+
+    // Email delivery failure must not block signup; user can resend later.
+    try {
+      await sendAccountVerification(account.id, account.email)
+    } catch (error) {
+      console.error('verification email failed', error)
+    }
   } catch (error) {
     console.error('signup failed', error)
     return { message: 'Something went wrong. Please try again.' }
@@ -71,4 +79,23 @@ export async function login(_state: AuthFormState, formData: FormData): Promise<
 export async function logout(): Promise<void> {
   await destroySession()
   redirect('/login')
+}
+
+export async function resendVerification(): Promise<AuthFormState> {
+  const account = await getCurrentAccount()
+  if (!account) {
+    return { message: 'You must be logged in to resend the email.' }
+  }
+  if (account.emailVerifiedAt) {
+    return { message: 'Your email address is already verified.' }
+  }
+
+  try {
+    await sendAccountVerification(account.id, account.email)
+  } catch (error) {
+    console.error('resend verification failed', error)
+    return { message: 'Something went wrong. Please try again.' }
+  }
+
+  return { message: 'Verification email sent. Please check your inbox.' }
 }
