@@ -1,21 +1,23 @@
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { PrismaClient } from '@/lib/generated/prisma/client'
 
+// DATABASE_URL is required at runtime. The only exception is the production
+// build phase, where no database exists (and must not be contacted).
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build'
+const databaseUrl = process.env.DATABASE_URL
+
+if (!databaseUrl && !isBuildPhase) {
+  throw new Error('DATABASE_URL is not set')
+}
+
+const adapter = new PrismaMariaDb(databaseUrl ?? 'mysql://build:build@localhost:3306/build')
+
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient
 }
 
-function createPrismaClient(): PrismaClient {
-  const adapter = new PrismaMariaDb(process.env.DATABASE_URL as string)
-  return new PrismaClient({ adapter })
-}
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
 
-// Lazily instantiate on first use so `next build` can evaluate modules
-// without a DATABASE_URL present.
-export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
-  get(_target, prop, receiver) {
-    const client = (globalForPrisma.prisma ??= createPrismaClient())
-    const value = Reflect.get(client, prop, receiver)
-    return typeof value === 'function' ? value.bind(client) : value
-  },
-})
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
