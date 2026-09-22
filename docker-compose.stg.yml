@@ -1,4 +1,11 @@
 services:
+  migrate-stg:
+    image: ghcr.io/yk-graph/air-booking-migrator:staging
+    container_name: air-booking-migrate-stg
+    env_file:
+      - .env.staging
+    restart: 'no'
+
   web-stg:
     image: ghcr.io/yk-graph/air-booking-web:staging
     container_name: air-booking-web-stg

@@ -1,4 +1,11 @@
 services:
+  migrate-prod:
+    image: ghcr.io/yk-graph/air-booking-migrator:latest
+    container_name: air-booking-migrate-prod
+    env_file:
+      - .env.production
+    restart: 'no'
+
   web-prod:
     image: ghcr.io/yk-graph/air-booking-web:latest
     container_name: air-booking-web-prod
