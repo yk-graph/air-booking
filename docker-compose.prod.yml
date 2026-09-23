@@ -2,6 +2,8 @@ services:
   db-prod:
     image: mysql:8.4
     container_name: air-booking-db-prod
+    ports:
+      - '127.0.0.1:4290:3306'
     env_file:
       - .env.production
     environment:
