@@ -2,6 +2,8 @@ services:
   db-stg:
     image: mysql:8.4
     container_name: air-booking-db-stg
+    ports:
+      - '127.0.0.1:4291:3306'
     env_file:
       - .env.staging
     environment:
