@@ -125,6 +125,7 @@ model Flight {
   originAirport        Airport      @relation("origin", fields: [originAirportId], references: [id])
   destinationAirport   Airport      @relation("destination", fields: [destinationAirportId], references: [id])
 
+  @@unique([flightNumber, departureAt])
   @@index([originAirportId])
   @@index([destinationAirportId])
 }
