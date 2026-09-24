@@ -114,6 +114,7 @@ model Flight {
   destinationAirportId String
   departureAt          DateTime
   arrivalAt            DateTime
+  durationMinutes      Int
   basePrice            Decimal      @db.Decimal(10, 2)
   status               FlightStatus @default(SCHEDULED)
   createdAt            DateTime     @default(now())

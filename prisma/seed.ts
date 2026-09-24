@@ -70,6 +70,8 @@ type FlightSchedule = {
   originCode: string
   destinationCode: string
   departureLocal: string
+  arrivalLocal: string
+  arrivalDayOffset: number
   durationMinutes: number
   days: Weekday[] | 'daily'
   basePrice: number
@@ -81,6 +83,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'ICN',
     departureLocal: '08:55',
+    arrivalLocal: '11:25',
+    arrivalDayOffset: 0,
     durationMinutes: 150,
     days: 'daily',
     basePrice: 30000,
@@ -90,6 +94,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'BKK',
     departureLocal: '17:00',
+    arrivalLocal: '22:15',
+    arrivalDayOffset: 0,
     durationMinutes: 435,
     days: 'daily',
     basePrice: 60000,
@@ -99,6 +105,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'SIN',
     departureLocal: '16:50',
+    arrivalLocal: '23:00',
+    arrivalDayOffset: 0,
     durationMinutes: 430,
     days: 'daily',
     basePrice: 65000,
@@ -108,6 +116,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'KUL',
     departureLocal: '16:50',
+    arrivalLocal: '23:40',
+    arrivalDayOffset: 0,
     durationMinutes: 470,
     days: 'daily',
     basePrice: 65000,
@@ -117,6 +127,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'HNL',
     departureLocal: '19:10',
+    arrivalLocal: '07:50',
+    arrivalDayOffset: 0,
     durationMinutes: 460,
     days: [0, 2, 5],
     basePrice: 70000,
@@ -126,6 +138,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'YVR',
     departureLocal: '16:00',
+    arrivalLocal: '08:30',
+    arrivalDayOffset: 0,
     durationMinutes: 570,
     days: [1, 3, 5, 6],
     basePrice: 85000,
@@ -135,6 +149,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'SFO',
     departureLocal: '21:25',
+    arrivalLocal: '13:35',
+    arrivalDayOffset: 0,
     durationMinutes: 550,
     days: 'daily',
     basePrice: 90000,
@@ -144,6 +160,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'NRT',
     destinationCode: 'LAX',
     departureLocal: '14:45',
+    arrivalLocal: '07:30',
+    arrivalDayOffset: 0,
     durationMinutes: 585,
     days: 'daily',
     basePrice: 90000,
@@ -153,6 +171,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'ICN',
     destinationCode: 'NRT',
     departureLocal: '12:55',
+    arrivalLocal: '15:30',
+    arrivalDayOffset: 0,
     durationMinutes: 155,
     days: 'daily',
     basePrice: 30000,
@@ -162,6 +182,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'BKK',
     destinationCode: 'NRT',
     departureLocal: '23:10',
+    arrivalLocal: '07:30',
+    arrivalDayOffset: 1,
     durationMinutes: 380,
     days: 'daily',
     basePrice: 60000,
@@ -171,6 +193,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'SIN',
     destinationCode: 'NRT',
     departureLocal: '00:40',
+    arrivalLocal: '08:30',
+    arrivalDayOffset: 0,
     durationMinutes: 410,
     days: 'daily',
     basePrice: 65000,
@@ -180,6 +204,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'KUL',
     destinationCode: 'NRT',
     departureLocal: '01:10',
+    arrivalLocal: '09:00',
+    arrivalDayOffset: 0,
     durationMinutes: 410,
     days: 'daily',
     basePrice: 65000,
@@ -189,6 +215,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'HNL',
     destinationCode: 'NRT',
     departureLocal: '09:10',
+    arrivalLocal: '13:15',
+    arrivalDayOffset: 1,
     durationMinutes: 545,
     days: [0, 2, 5],
     basePrice: 70000,
@@ -198,6 +226,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'YVR',
     destinationCode: 'NRT',
     departureLocal: '10:30',
+    arrivalLocal: '12:45',
+    arrivalDayOffset: 1,
     durationMinutes: 555,
     days: [1, 3, 5, 6],
     basePrice: 85000,
@@ -207,6 +237,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'SFO',
     destinationCode: 'NRT',
     departureLocal: '16:45',
+    arrivalLocal: '20:00',
+    arrivalDayOffset: 1,
     durationMinutes: 675,
     days: 'daily',
     basePrice: 90000,
@@ -216,6 +248,8 @@ const flightSchedules: FlightSchedule[] = [
     originCode: 'LAX',
     destinationCode: 'NRT',
     departureLocal: '10:25',
+    arrivalLocal: '14:10',
+    arrivalDayOffset: 1,
     durationMinutes: 705,
     days: 'daily',
     basePrice: 90000,
@@ -276,14 +310,16 @@ async function seedFlights(airportIdByCode: Map<string, string>): Promise<number
   let count = 0
 
   for (const schedule of flightSchedules) {
-    const timeZone = airportTimeZones[schedule.originCode]
+    const originTimeZone = airportTimeZones[schedule.originCode]
+    const destinationTimeZone = airportTimeZones[schedule.destinationCode]
     const originAirportId = airportIdByCode.get(schedule.originCode)
     const destinationAirportId = airportIdByCode.get(schedule.destinationCode)
-    if (!timeZone || !originAirportId || !destinationAirportId) {
+    if (!originTimeZone || !destinationTimeZone || !originAirportId || !destinationAirportId) {
       throw new Error(`Missing airport data for flight ${schedule.flightNumber}`)
     }
 
-    const [hour, minute] = schedule.departureLocal.split(':').map(Number)
+    const [departureHour, departureMinute] = schedule.departureLocal.split(':').map(Number)
+    const [arrivalHour, arrivalMinute] = schedule.arrivalLocal.split(':').map(Number)
 
     for (let cursor = startUtc; cursor <= endUtc; cursor += dayMs) {
       const date = new Date(cursor)
@@ -294,21 +330,37 @@ async function seedFlights(airportIdByCode: Map<string, string>): Promise<number
         date.getUTCFullYear(),
         date.getUTCMonth() + 1,
         date.getUTCDate(),
-        hour,
-        minute,
-        timeZone,
+        departureHour,
+        departureMinute,
+        originTimeZone,
       )
-      const arrivalAt = new Date(departureAt.getTime() + schedule.durationMinutes * 60 * 1000)
+
+      const arrivalDate = new Date(cursor + schedule.arrivalDayOffset * dayMs)
+      const arrivalAt = zonedWallTimeToUtc(
+        arrivalDate.getUTCFullYear(),
+        arrivalDate.getUTCMonth() + 1,
+        arrivalDate.getUTCDate(),
+        arrivalHour,
+        arrivalMinute,
+        destinationTimeZone,
+      )
 
       await prisma.flight.upsert({
         where: { flightNumber_departureAt: { flightNumber: schedule.flightNumber, departureAt } },
-        update: { originAirportId, destinationAirportId, arrivalAt, basePrice: schedule.basePrice },
+        update: {
+          originAirportId,
+          destinationAirportId,
+          arrivalAt,
+          durationMinutes: schedule.durationMinutes,
+          basePrice: schedule.basePrice,
+        },
         create: {
           flightNumber: schedule.flightNumber,
           originAirportId,
           destinationAirportId,
           departureAt,
           arrivalAt,
+          durationMinutes: schedule.durationMinutes,
           basePrice: schedule.basePrice,
         },
       })
