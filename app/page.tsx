@@ -1,36 +1,36 @@
-import Link from 'next/link'
-
-import { logout } from '@/app/actions/auth'
-import { VerificationBanner } from '@/app/verification-banner'
+import { VerificationBanner } from '@/components/common/verification-banner'
+import { FlightSearch } from '@/components/home/flight-search'
+import { HeroCarousel } from '@/components/home/hero-carousel'
+import { SiteHeader } from '@/components/layout/site-header'
 import { getCurrentAccount } from '@/lib/auth/session'
+import { prisma } from '@/lib/prisma'
 
 export default async function HomePage() {
-  const account = await getCurrentAccount()
+  const [account, airports] = await Promise.all([
+    getCurrentAccount(),
+    prisma.airport.findMany({
+      orderBy: { city: 'asc' },
+      select: { code: true, city: true, name: true, country: true },
+    }),
+  ])
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="text-3xl font-bold">Air Flight Booking</h1>
+    <div className="min-h-screen bg-gray-50">
+      <SiteHeader account={account} />
 
-      {account ? (
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-gray-600">Signed in as {account.email}</p>
-          {!account.emailVerifiedAt && <VerificationBanner />}
-          <form action={logout}>
-            <button type="submit" className="underline">
-              Log out
-            </button>
-          </form>
-        </div>
-      ) : (
-        <div className="flex gap-4">
-          <Link href="/login" className="underline">
-            Log in
-          </Link>
-          <Link href="/register" className="underline">
-            Sign up
-          </Link>
+      {account && !account.emailVerifiedAt && (
+        <div className="mx-auto max-w-6xl px-6 pt-4">
+          <VerificationBanner />
         </div>
       )}
-    </main>
+
+      <section className="relative">
+        <HeroCarousel />
+
+        <div className="relative z-10 mx-auto -mt-20 max-w-4xl px-4 pb-16">
+          <FlightSearch airports={airports} />
+        </div>
+      </section>
+    </div>
   )
 }
