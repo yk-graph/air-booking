@@ -23,15 +23,18 @@ enum FlightStatus {
 
 enum CabinClass {
   ECONOMY
-  PREMIUM
   BUSINESS
-  FIRST
 }
 
 enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum SeatStatus {
+  PENDING
+  CONFIRMED
 }
 
 enum TokenType {
@@ -137,8 +140,7 @@ model Seat {
   seatRow    Int
   seatColumn String
   cabinClass CabinClass @default(ECONOMY)
-  addPrice   Decimal    @default(0) @db.Decimal(10, 2)
-  isBlocked  Boolean    @default(false)
+  status     SeatStatus @default(PENDING)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   // has one relation
