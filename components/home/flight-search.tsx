@@ -11,16 +11,30 @@ export type AirportOption = {
 
 type TripType = 'round' | 'oneway'
 
+const selectClass =
+  'w-full truncate rounded border border-gray-300 px-4 py-4 text-lg text-gray-900 focus:border-emerald-600 focus:outline-none'
+const labelClass = 'text-sm text-gray-500'
+
 export function FlightSearch({ airports }: { airports: AirportOption[] }) {
   const [trip, setTrip] = useState<TripType>('round')
   const [origin, setOrigin] = useState('')
   const [destination, setDestination] = useState('')
-  const [showPromo, setShowPromo] = useState(false)
 
   const swap = () => {
     setOrigin(destination)
     setDestination(origin)
   }
+
+  const renderOptions = (disabledCode: string) => (
+    <>
+      <option value="">Select</option>
+      {airports.map((airport) => (
+        <option key={airport.code} value={airport.code} disabled={airport.code === disabledCode}>
+          {airport.city} — {airport.code} {airport.name} ({airport.country})
+        </option>
+      ))}
+    </>
+  )
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-xl md:p-10">
@@ -49,50 +63,45 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
         </button>
       </div>
 
-      <div className="flex flex-col items-center gap-3 md:flex-row">
-        <SelectField
-          label="Origin (Country, Region)"
-          value={origin}
-          onChange={setOrigin}
-          airports={airports}
-          disabledCode={destination}
-        />
+      <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:gap-3">
+        <span className={labelClass}>Origin (Country, Region)</span>
+        <span aria-hidden className="w-10" />
+        <span className={labelClass}>Destination (Country, Region)</span>
+      </div>
+
+      <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="min-w-0 flex-1">
+          <span className={`mb-1 block md:hidden ${labelClass}`}>Origin (Country, Region)</span>
+          <select
+            value={origin}
+            onChange={(event) => setOrigin(event.target.value)}
+            className={selectClass}
+          >
+            {renderOptions(destination)}
+          </select>
+        </div>
 
         <button
           type="button"
           aria-label="Swap origin and destination"
           onClick={swap}
-          className="mt-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-50"
+          className="flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-50"
         >
           ⇄
         </button>
 
-        <SelectField
-          label="Destination (Country, Region)"
-          value={destination}
-          onChange={setDestination}
-          airports={airports}
-          disabledCode={origin}
-        />
-      </div>
-
-      <div className="mt-6 text-center">
-        <button
-          type="button"
-          onClick={() => setShowPromo((value) => !value)}
-          className="text-sm text-emerald-700 hover:underline"
-        >
-          Add a Promotional Code {showPromo ? '−' : '＋'}
-        </button>
-        {showPromo && (
-          <div className="mt-3">
-            <input
-              type="text"
-              placeholder="Promotional code"
-              className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-        )}
+        <div className="min-w-0 flex-1">
+          <span className={`mb-1 block md:hidden ${labelClass}`}>
+            Destination (Country, Region)
+          </span>
+          <select
+            value={destination}
+            onChange={(event) => setDestination(event.target.value)}
+            className={selectClass}
+          >
+            {renderOptions(origin)}
+          </select>
+        </div>
       </div>
 
       <div className="mt-8 text-center">
@@ -104,37 +113,5 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
         </button>
       </div>
     </div>
-  )
-}
-
-function SelectField({
-  label,
-  value,
-  onChange,
-  airports,
-  disabledCode,
-}: {
-  label: string
-  value: string
-  onChange: (code: string) => void
-  airports: AirportOption[]
-  disabledCode: string
-}) {
-  return (
-    <label className="flex w-full flex-col gap-1">
-      <span className="text-sm text-gray-500">{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="rounded border border-gray-300 px-4 py-4 text-lg text-gray-900 focus:border-emerald-600 focus:outline-none"
-      >
-        <option value="">Select</option>
-        {airports.map((airport) => (
-          <option key={airport.code} value={airport.code} disabled={airport.code === disabledCode}>
-            {airport.city} — {airport.code} {airport.name} ({airport.country})
-          </option>
-        ))}
-      </select>
-    </label>
   )
 }
