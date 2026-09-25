@@ -87,7 +87,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 150,
     days: 'daily',
-    basePrice: 30000,
+    basePrice: 350,
   },
   {
     flightNumber: 'ZG051',
@@ -98,7 +98,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 435,
     days: 'daily',
-    basePrice: 60000,
+    basePrice: 700,
   },
   {
     flightNumber: 'ZG053',
@@ -109,7 +109,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 430,
     days: 'daily',
-    basePrice: 65000,
+    basePrice: 720,
   },
   {
     flightNumber: 'ZG061',
@@ -120,7 +120,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 470,
     days: 'daily',
-    basePrice: 65000,
+    basePrice: 720,
   },
   {
     flightNumber: 'ZG002',
@@ -131,7 +131,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 460,
     days: [0, 2, 5],
-    basePrice: 70000,
+    basePrice: 800,
   },
   {
     flightNumber: 'ZG022',
@@ -142,7 +142,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 570,
     days: [1, 3, 5, 6],
-    basePrice: 85000,
+    basePrice: 900,
   },
   {
     flightNumber: 'ZG026',
@@ -153,7 +153,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 550,
     days: 'daily',
-    basePrice: 90000,
+    basePrice: 950,
   },
   {
     flightNumber: 'ZG024',
@@ -164,7 +164,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 585,
     days: 'daily',
-    basePrice: 90000,
+    basePrice: 950,
   },
   {
     flightNumber: 'ZG046',
@@ -175,7 +175,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 155,
     days: 'daily',
-    basePrice: 30000,
+    basePrice: 350,
   },
   {
     flightNumber: 'ZG052',
@@ -186,7 +186,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 1,
     durationMinutes: 380,
     days: 'daily',
-    basePrice: 60000,
+    basePrice: 700,
   },
   {
     flightNumber: 'ZG054',
@@ -197,7 +197,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 410,
     days: 'daily',
-    basePrice: 65000,
+    basePrice: 720,
   },
   {
     flightNumber: 'ZG062',
@@ -208,7 +208,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 0,
     durationMinutes: 410,
     days: 'daily',
-    basePrice: 65000,
+    basePrice: 720,
   },
   {
     flightNumber: 'ZG001',
@@ -219,7 +219,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 1,
     durationMinutes: 545,
     days: [0, 2, 5],
-    basePrice: 70000,
+    basePrice: 800,
   },
   {
     flightNumber: 'ZG021',
@@ -230,7 +230,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 1,
     durationMinutes: 555,
     days: [1, 3, 5, 6],
-    basePrice: 85000,
+    basePrice: 900,
   },
   {
     flightNumber: 'ZG025',
@@ -241,7 +241,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 1,
     durationMinutes: 675,
     days: 'daily',
-    basePrice: 90000,
+    basePrice: 950,
   },
   {
     flightNumber: 'ZG023',
@@ -252,7 +252,7 @@ const flightSchedules: FlightSchedule[] = [
     arrivalDayOffset: 1,
     durationMinutes: 705,
     days: 'daily',
-    basePrice: 90000,
+    basePrice: 950,
   },
 ]
 
