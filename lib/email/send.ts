@@ -28,6 +28,27 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
   }
 }
 
+export async function sendBookingConfirmation(
+  to: string,
+  booking: { reference: string; totalPrice: number },
+): Promise<void> {
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to,
+    subject: `Your booking is confirmed (${booking.reference})`,
+    html: `
+      <p>Your booking is confirmed.</p>
+      <p>Booking reference: <strong>${booking.reference}</strong></p>
+      <p>Total: C$${booking.totalPrice.toLocaleString('en-US')}</p>
+      <p>Thank you for booking with us.</p>
+    `,
+  })
+
+  if (error) {
+    throw new Error(`Failed to send booking confirmation email: ${error.message}`)
+  }
+}
+
 export async function sendPasswordResetEmail(accountId: string, email: string): Promise<void> {
   const token = await createPasswordResetToken(accountId)
   const resetUrl = `${APP_URL}/reset-password?token=${token}`
