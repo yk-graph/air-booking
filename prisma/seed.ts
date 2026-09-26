@@ -2,6 +2,7 @@ import 'dotenv/config'
 
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
+import { airportTimeZones } from '../lib/flights/airport-timezones'
 import { PrismaClient } from '../lib/generated/prisma/client'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -50,18 +51,6 @@ const airports: AirportSeed[] = [
     country: 'United States',
   },
 ]
-
-const airportTimeZones: Record<string, string> = {
-  NRT: 'Asia/Tokyo',
-  ICN: 'Asia/Seoul',
-  BKK: 'Asia/Bangkok',
-  SIN: 'Asia/Singapore',
-  KUL: 'Asia/Kuala_Lumpur',
-  HNL: 'Pacific/Honolulu',
-  YVR: 'America/Vancouver',
-  SFO: 'America/Los_Angeles',
-  LAX: 'America/Los_Angeles',
-}
 
 type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6
 
