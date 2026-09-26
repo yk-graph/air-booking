@@ -56,7 +56,13 @@ export default async function OutboundPage({
 
   return (
     <div className="min-h-screen bg-white">
-      <BookingHeader backHref="/" fromCity={fromAirport.city} toCity={toAirport.city} trip={trip} />
+      <BookingHeader
+        backHref="/"
+        fromCity={fromAirport.city}
+        toCity={toAirport.city}
+        trip={trip}
+        activeLeg="outbound"
+      />
 
       <main className="mx-auto max-w-5xl px-6 py-10">
         <div className="mb-6 flex items-center justify-end">
@@ -66,7 +72,7 @@ export default async function OutboundPage({
         <DateCalendar
           month={month}
           fares={fares}
-          todayKey={todayKey}
+          minDateKey={todayKey}
           selectHref={selectHref}
           prevHref={prevMonth ? monthHref(prevMonth) : null}
           nextHref={nextMonth ? monthHref(nextMonth) : null}

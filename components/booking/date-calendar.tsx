@@ -11,14 +11,14 @@ function formatPrice(price: number): string {
 export function DateCalendar({
   month,
   fares,
-  todayKey,
+  minDateKey,
   selectHref,
   prevHref,
   nextHref,
 }: {
   month: string
   fares: Map<string, DailyFare>
-  todayKey: string
+  minDateKey: string
   selectHref: (date: string) => string
   prevHref: string | null
   nextHref: string | null
@@ -63,9 +63,9 @@ export function DateCalendar({
 
           const dateKey = `${month}-${String(day).padStart(2, '0')}`
           const fare = fares.get(dateKey)
-          const isPast = dateKey < todayKey
+          const isDisabled = dateKey < minDateKey
 
-          if (fare && !isPast) {
+          if (fare && !isDisabled) {
             return (
               <Link
                 key={i}
@@ -82,7 +82,9 @@ export function DateCalendar({
 
           return (
             <div key={i} className="flex h-20 items-center justify-center">
-              <span className={isPast ? 'text-gray-300 line-through' : 'text-gray-300'}>{day}</span>
+              <span className={isDisabled ? 'text-gray-300 line-through' : 'text-gray-300'}>
+                {day}
+              </span>
             </div>
           )
         })}
