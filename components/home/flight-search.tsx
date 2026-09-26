@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export type AirportOption = {
@@ -16,6 +17,7 @@ const selectClass =
 const labelClass = 'text-sm text-gray-500'
 
 export function FlightSearch({ airports }: { airports: AirportOption[] }) {
+  const router = useRouter()
   const [trip, setTrip] = useState<TripType>('round')
   const [origin, setOrigin] = useState('')
   const [destination, setDestination] = useState('')
@@ -23,6 +25,14 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
   const swap = () => {
     setOrigin(destination)
     setDestination(origin)
+  }
+
+  const canSearch = origin !== '' && destination !== '' && origin !== destination
+
+  const search = () => {
+    if (!canSearch) return
+    const query = new URLSearchParams({ from: origin, to: destination, trip })
+    router.push(`/booking/outbound?${query.toString()}`)
   }
 
   const renderOptions = (disabledCode: string) => (
@@ -107,7 +117,9 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
       <div className="mt-8 text-center">
         <button
           type="button"
-          className="w-full max-w-sm rounded bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800"
+          onClick={search}
+          disabled={!canSearch}
+          className="w-full max-w-sm rounded bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           Search Flight
         </button>
