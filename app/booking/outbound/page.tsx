@@ -51,7 +51,7 @@ export default async function OutboundPage({
 
   const monthHref = (target: string) => buildHref('/booking/outbound', { cabin, month: target })
   const cabinHref = (target: CabinClass) => buildHref('/booking/outbound', { cabin: target, month })
-  const nextStep = trip === 'round' ? '/booking/return' : '/booking/passenger'
+  const nextStep = trip === 'round' ? '/booking/return' : '/booking/seats/outbound'
   const selectHref = (date: string) => buildHref(nextStep, { cabin, depart: date })
 
   return (

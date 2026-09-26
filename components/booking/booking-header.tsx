@@ -19,6 +19,7 @@ export function BookingHeader({
   activeLeg,
   outboundDate,
   returnDate,
+  totalLabel,
 }: {
   backHref: string
   fromCity: string
@@ -27,6 +28,7 @@ export function BookingHeader({
   activeLeg: 'outbound' | 'return'
   outboundDate?: string
   returnDate?: string
+  totalLabel?: string
 }) {
   return (
     <div className="border-b border-gray-200">
@@ -42,6 +44,10 @@ export function BookingHeader({
             <span className="text-gray-300">|</span>
             <Leg from={toCity} to={fromCity} date={returnDate} active={activeLeg === 'return'} />
           </>
+        )}
+
+        {totalLabel && (
+          <span className="ml-auto text-xl font-semibold text-gray-900">{totalLabel}</span>
         )}
       </div>
     </div>

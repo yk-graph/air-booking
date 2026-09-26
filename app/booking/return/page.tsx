@@ -63,7 +63,7 @@ export default async function ReturnPage({
   const monthHref = (target: string) => buildHref('/booking/return', { month: target })
   const cabinHref = (target: CabinClass) => buildHref('/booking/return', { cabin: target, month })
   const outboundHref = buildHref('/booking/outbound', { month: departMonth })
-  const selectHref = (date: string) => buildHref('/booking/passenger', { returnDate: date })
+  const selectHref = (date: string) => buildHref('/booking/seats/outbound', { returnDate: date })
 
   return (
     <div className="min-h-screen bg-white">
