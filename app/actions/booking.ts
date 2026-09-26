@@ -6,9 +6,10 @@ import { redirect } from 'next/navigation'
 import * as z from 'zod'
 
 import { getCurrentAccount } from '@/lib/auth/session'
+import { sendBookingConfirmation } from '@/lib/email/send'
 import { getFlightForDate, type FlightForDate } from '@/lib/flights/flights'
 import { cabinAddPrice } from '@/lib/flights/seat-map'
-import { CabinClass } from '@/lib/generated/prisma/enums'
+import { BookingStatus, CabinClass, SeatStatus } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 import { passengerSchema, type BookingFormState } from '@/lib/validations/booking'
 
@@ -127,4 +128,39 @@ export async function createBooking(
   }
 
   redirect(`/booking/confirm?bookingId=${bookingId}`)
+}
+
+export async function confirmBooking(formData: FormData): Promise<void> {
+  const bookingId = String(formData.get('bookingId') ?? '')
+  if (!bookingId) redirect('/')
+
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: { id: true, status: true, contactEmail: true, reference: true, totalPrice: true },
+  })
+  if (!booking) redirect('/')
+
+  if (booking.status === BookingStatus.PENDING) {
+    await prisma.$transaction([
+      prisma.booking.update({
+        where: { id: booking.id },
+        data: { status: BookingStatus.CONFIRMED },
+      }),
+      prisma.seat.updateMany({
+        where: { ticket: { bookingId: booking.id } },
+        data: { status: SeatStatus.CONFIRMED },
+      }),
+    ])
+
+    try {
+      await sendBookingConfirmation(booking.contactEmail, {
+        reference: booking.reference,
+        totalPrice: Number(booking.totalPrice),
+      })
+    } catch (error) {
+      console.error('booking confirmation email failed', error)
+    }
+  }
+
+  redirect(`/booking/complete?bookingId=${booking.id}`)
 }
