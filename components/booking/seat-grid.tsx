@@ -1,5 +1,7 @@
+import { X } from 'lucide-react'
 import Link from 'next/link'
 
+import { Icon } from '@/components/ui/icon'
 import type { SeatAvailability } from '@/lib/flights/seats'
 
 export function SeatGrid({
@@ -40,8 +42,8 @@ export function SeatGrid({
                     {seatCode}
                   </Link>
                 ) : (
-                  <span className="flex h-10 w-10 items-center justify-center rounded border border-gray-200 bg-gray-100 text-xs text-gray-300">
-                    ×
+                  <span className="flex h-10 w-10 items-center justify-center rounded border border-gray-200 bg-gray-100 text-gray-300">
+                    <Icon icon={X} size={16} />
                   </span>
                 )}
                 {i === aisleAfter && <span className="w-6" />}

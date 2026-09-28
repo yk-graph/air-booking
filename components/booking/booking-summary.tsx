@@ -1,3 +1,6 @@
+import { ArrowRight } from 'lucide-react'
+
+import { Icon } from '@/components/ui/icon'
 import type { BookingView } from '@/lib/booking/get-booking-view'
 
 function formatPrice(value: number): string {
@@ -14,12 +17,16 @@ export function BookingSummary({ booking }: { booking: BookingView }) {
             className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
           >
             <div>
-              <div className="text-sm font-semibold text-gray-900">
-                {leg.fromCity} → {leg.toCity}
+              <div className="flex items-center gap-1 text-sm font-semibold text-gray-900">
+                {leg.fromCity}
+                <Icon icon={ArrowRight} size={14} />
+                {leg.toCity}
                 <span className="ml-2 font-normal text-gray-400">{leg.flightNumber}</span>
               </div>
-              <div className="text-xs text-gray-500">
-                {leg.departure} → {leg.arrival}
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                {leg.departure}
+                <Icon icon={ArrowRight} size={12} />
+                {leg.arrival}
               </div>
               <div className="text-xs text-gray-500">
                 Seat {leg.seat} · {leg.cabin}

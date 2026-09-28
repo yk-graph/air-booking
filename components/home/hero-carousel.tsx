@@ -1,8 +1,11 @@
 'use client'
 
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 import { motion } from 'motion/react'
+
+import { Icon } from '@/components/ui/icon'
 
 const slides = [
   { src: '/hero/slide-1.jpg', alt: 'City skyline at dusk' },
@@ -56,17 +59,17 @@ export function HeroCarousel() {
         type="button"
         aria-label="Previous slide"
         onClick={() => go(-1)}
-        className="absolute left-4 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl text-gray-700 shadow hover:bg-white"
+        className="absolute left-4 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow hover:bg-white"
       >
-        ‹
+        <Icon icon={ChevronLeft} />
       </button>
       <button
         type="button"
         aria-label="Next slide"
         onClick={() => go(1)}
-        className="absolute right-4 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl text-gray-700 shadow hover:bg-white"
+        className="absolute right-4 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow hover:bg-white"
       >
-        ›
+        <Icon icon={ChevronRight} />
       </button>
 
       <div className="absolute bottom-24 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2">

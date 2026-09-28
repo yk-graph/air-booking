@@ -1,5 +1,7 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
+import { Icon } from '@/components/ui/icon'
 import type { DailyFare } from '@/lib/flights/fares'
 
 const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -42,11 +44,11 @@ export function DateCalendar({
         <h2 className="text-3xl font-semibold text-gray-900">{year}</h2>
         <div className="flex items-center gap-2">
           <MonthArrow href={prevHref} label="Previous month">
-            ‹
+            <Icon icon={ChevronLeft} size={18} />
           </MonthArrow>
           <span className="w-16 text-center text-lg font-medium text-gray-700">{monthLabel}.</span>
           <MonthArrow href={nextHref} label="Next month">
-            ›
+            <Icon icon={ChevronRight} size={18} />
           </MonthArrow>
         </div>
       </div>
