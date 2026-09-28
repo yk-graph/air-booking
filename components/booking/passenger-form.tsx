@@ -1,9 +1,13 @@
 'use client'
 
-import { useActionState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { Controller, useForm, type UseFormRegisterReturn } from 'react-hook-form'
 
 import { createBooking } from '@/app/actions/booking'
-import type { BookingFormState, PassengerInput } from '@/lib/validations/booking'
+import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
+import { countries } from '@/lib/countries'
+import { passengerSchema, type PassengerInput } from '@/lib/validations/booking'
 
 export type BookingSelection = {
   from: string
@@ -20,35 +24,36 @@ const inputClass =
   'rounded border border-gray-300 px-3 py-2 focus:border-emerald-600 focus:outline-none'
 const labelClass = 'text-sm font-medium text-gray-800'
 
-function Field({
-  name,
+const countryItems: ComboboxItem[] = countries.map((country) => ({
+  value: country.name,
+  primary: country.name,
+  flagCode: country.code,
+  searchText: country.name,
+}))
+
+function TextField({
   label,
-  state,
+  hint,
   required,
   type = 'text',
-  hint,
-  defaultValue,
+  registration,
+  error,
 }: {
-  name: keyof PassengerInput
   label: string
-  state: BookingFormState
+  hint?: string
   required?: boolean
   type?: string
-  hint?: string
-  defaultValue?: string
+  registration: UseFormRegisterReturn
+  error?: string
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={name} className={labelClass}>
+      <label htmlFor={registration.name} className={labelClass}>
         {label} {required && <span className="text-red-600">*</span>}
         {hint && <span className="ml-1 font-normal text-gray-400">{hint}</span>}
       </label>
-      <input id={name} name={name} type={type} defaultValue={defaultValue} className={inputClass} />
-      {state?.errors?.[name]?.map((error) => (
-        <p key={error} className="text-sm text-red-600">
-          {error}
-        </p>
-      ))}
+      <input id={registration.name} type={type} className={inputClass} {...registration} />
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   )
 }
@@ -60,77 +65,177 @@ export function PassengerForm({
   selection: BookingSelection
   defaultEmail?: string
 }) {
-  const [state, action, pending] = useActionState(createBooking, undefined)
+  const [formMessage, setFormMessage] = useState<string>()
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<PassengerInput>({
+    resolver: zodResolver(passengerSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      middleName: '',
+      contactEmail: defaultEmail ?? '',
+      contactPhone: '',
+      dateOfBirth: '',
+      nationality: '',
+      passportNumber: '',
+      countryOfIssue: '',
+      dateOfIssue: '',
+      dateOfExpiry: '',
+    },
+  })
+
+  const onSubmit = handleSubmit(async (values) => {
+    setFormMessage(undefined)
+    const formData = new FormData()
+    for (const [key, value] of Object.entries(values)) {
+      if (value) formData.set(key, String(value))
+    }
+    formData.set('from', selection.from)
+    formData.set('to', selection.to)
+    formData.set('trip', selection.trip)
+    formData.set('cabin', selection.cabin)
+    formData.set('depart', selection.depart)
+    if (selection.returnDate) formData.set('returnDate', selection.returnDate)
+    formData.set('seatOut', selection.seatOut)
+    if (selection.seatRet) formData.set('seatRet', selection.seatRet)
+
+    const result = await createBooking(undefined, formData)
+    if (result?.message) setFormMessage(result.message)
+  })
 
   return (
-    <form action={action} className="flex flex-col gap-6">
-      <input type="hidden" name="from" value={selection.from} />
-      <input type="hidden" name="to" value={selection.to} />
-      <input type="hidden" name="trip" value={selection.trip} />
-      <input type="hidden" name="cabin" value={selection.cabin} />
-      <input type="hidden" name="depart" value={selection.depart} />
-      {selection.returnDate && (
-        <input type="hidden" name="returnDate" value={selection.returnDate} />
-      )}
-      <input type="hidden" name="seatOut" value={selection.seatOut} />
-      {selection.seatRet && <input type="hidden" name="seatRet" value={selection.seatRet} />}
-
-      {state?.message && <p className="text-sm text-red-600">{state.message}</p>}
+    <form onSubmit={onSubmit} className="flex flex-col gap-6">
+      {formMessage && <p className="text-sm text-red-600">{formMessage}</p>}
       <p className="text-sm font-semibold text-red-600">All items in * are mandatory.</p>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field
-          name="lastName"
+        <TextField
           label="Family Name"
           hint="(Half-width alphabetical)"
           required
-          state={state}
+          registration={register('lastName')}
+          error={errors.lastName?.message}
         />
-        <Field
-          name="firstName"
+        <TextField
           label="First Name"
           hint="(Half-width alphabetical)"
           required
-          state={state}
+          registration={register('firstName')}
+          error={errors.firstName?.message}
         />
       </div>
 
-      <Field name="middleName" label="Middle Name" hint="(optional)" state={state} />
+      <TextField
+        label="Middle Name"
+        hint="(optional)"
+        registration={register('middleName')}
+        error={errors.middleName?.message}
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field
-          name="contactEmail"
+        <TextField
           label="Email"
           type="email"
           required
-          state={state}
-          defaultValue={defaultEmail}
+          registration={register('contactEmail')}
+          error={errors.contactEmail?.message}
         />
-        <Field name="contactPhone" label="Phone" hint="(optional)" state={state} />
+        <TextField
+          label="Phone"
+          hint="(optional)"
+          registration={register('contactPhone')}
+          error={errors.contactPhone?.message}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field name="dateOfBirth" label="Date of Birth" type="date" required state={state} />
-        <Field name="nationality" label="Nationality" required state={state} />
+        <TextField
+          label="Date of Birth"
+          type="date"
+          required
+          registration={register('dateOfBirth')}
+          error={errors.dateOfBirth?.message}
+        />
+        <CountryField
+          label="Nationality"
+          name="nationality"
+          control={control}
+          error={errors.nationality?.message}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field name="passportNumber" label="Passport Number" required state={state} />
-        <Field name="countryOfIssue" label="Country of Issue" required state={state} />
+        <TextField
+          label="Passport Number"
+          required
+          registration={register('passportNumber')}
+          error={errors.passportNumber?.message}
+        />
+        <CountryField
+          label="Country of Issue"
+          name="countryOfIssue"
+          control={control}
+          error={errors.countryOfIssue?.message}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field name="dateOfIssue" label="Date of Issue" type="date" required state={state} />
-        <Field name="dateOfExpiry" label="Date of Expiry" type="date" required state={state} />
+        <TextField
+          label="Date of Issue"
+          type="date"
+          required
+          registration={register('dateOfIssue')}
+          error={errors.dateOfIssue?.message}
+        />
+        <TextField
+          label="Date of Expiry"
+          type="date"
+          required
+          registration={register('dateOfExpiry')}
+          error={errors.dateOfExpiry?.message}
+        />
       </div>
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={isSubmitting}
         className="w-full max-w-sm self-center rounded bg-emerald-700 px-6 py-3 font-semibold text-white hover:bg-emerald-800 disabled:bg-gray-300"
       >
-        {pending ? 'Processing…' : 'Continue'}
+        {isSubmitting ? 'Processing…' : 'Continue'}
       </button>
     </form>
+  )
+}
+
+function CountryField({
+  label,
+  name,
+  control,
+  error,
+}: {
+  label: string
+  name: 'nationality' | 'countryOfIssue'
+  control: ReturnType<typeof useForm<PassengerInput>>['control']
+  error?: string
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className={labelClass}>
+        {label} <span className="text-red-600">*</span>
+      </label>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <Combobox value={field.value ?? ''} onChange={field.onChange} items={countryItems} />
+        )}
+      />
+      {error && <p className="text-sm text-red-600">{error}</p>}
+    </div>
   )
 }
