@@ -1,7 +1,9 @@
+import { ArrowRight } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 import { BookingHeader } from '@/components/booking/booking-header'
 import { SeatGrid } from '@/components/booking/seat-grid'
+import { Icon } from '@/components/ui/icon'
 import { cabinAddPrice } from '@/lib/flights/seat-map'
 import { getFlightForDate } from '@/lib/flights/flights'
 import { getFlightSeatMap } from '@/lib/flights/seats'
@@ -55,7 +57,17 @@ export default async function ReturnSeatsPage({
   const base = { from, to, trip: 'round', cabin, depart, returnDate, seatOut }
   const hrefFor = (seatCode: string) =>
     `/booking/passenger?${new URLSearchParams({ ...base, seatRet: seatCode }).toString()}`
-  const backHref = `/booking/seats/outbound?${new URLSearchParams({ from, to, trip: 'round', cabin, depart, returnDate }).toString()}`
+  const dateQuery = new URLSearchParams({
+    from,
+    to,
+    trip: 'round',
+    cabin,
+    depart,
+    returnDate,
+  }).toString()
+  const backHref = `/booking/seats/outbound?${dateQuery}`
+  const outboundHref = `/booking/outbound?${dateQuery}`
+  const returnHref = `/booking/return?${dateQuery}`
 
   return (
     <div className="min-h-screen bg-white">
@@ -68,11 +80,15 @@ export default async function ReturnSeatsPage({
         outboundDate={depart}
         returnDate={returnDate}
         totalLabel={`C$${total.toLocaleString('en-US')}`}
+        outboundHref={outboundHref}
+        returnHref={returnHref}
       />
 
       <main className="mx-auto max-w-5xl px-6 py-10">
-        <h1 className="mb-1 text-2xl font-semibold">
-          Select your seat — {toAirport.city} → {fromAirport.city}
+        <h1 className="mb-1 flex items-center gap-2 text-2xl font-semibold">
+          Select your seat — {toAirport.city}
+          <Icon icon={ArrowRight} size={18} />
+          {fromAirport.city}
         </h1>
         <p className="mb-8 text-sm text-gray-500">
           {cabin === CabinClass.BUSINESS ? 'Business' : 'Economy'} cabin

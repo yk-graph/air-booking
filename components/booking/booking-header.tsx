@@ -1,4 +1,7 @@
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+
+import { Icon } from '@/components/ui/icon'
 
 function formatDate(date: string | undefined): string {
   if (!date) return '-'
@@ -20,6 +23,8 @@ export function BookingHeader({
   outboundDate,
   returnDate,
   totalLabel,
+  outboundHref,
+  returnHref,
 }: {
   backHref: string
   fromCity: string
@@ -29,20 +34,34 @@ export function BookingHeader({
   outboundDate?: string
   returnDate?: string
   totalLabel?: string
+  outboundHref?: string
+  returnHref?: string
 }) {
   return (
     <div className="border-b border-gray-200">
       <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
-        <Link href={backHref} aria-label="Back" className="text-2xl text-gray-700 hover:text-black">
-          ←
+        <Link href={backHref} aria-label="Back" className="text-gray-700 hover:text-black">
+          <Icon icon={ArrowLeft} />
         </Link>
 
-        <Leg from={fromCity} to={toCity} date={outboundDate} active={activeLeg === 'outbound'} />
+        <Leg
+          from={fromCity}
+          to={toCity}
+          date={outboundDate}
+          active={activeLeg === 'outbound'}
+          href={outboundHref}
+        />
 
         {trip === 'round' && (
           <>
             <span className="text-gray-300">|</span>
-            <Leg from={toCity} to={fromCity} date={returnDate} active={activeLeg === 'return'} />
+            <Leg
+              from={toCity}
+              to={fromCity}
+              date={returnDate}
+              active={activeLeg === 'return'}
+              href={returnHref}
+            />
           </>
         )}
 
@@ -59,18 +78,33 @@ function Leg({
   to,
   date,
   active,
+  href,
 }: {
   from: string
   to: string
   date?: string
   active: boolean
+  href?: string
 }) {
-  return (
+  const content = (
     <div className={active ? 'border-b-2 border-emerald-600 pb-1' : 'pb-1'}>
-      <div className={`text-sm font-semibold ${active ? 'text-gray-900' : 'text-gray-400'}`}>
-        {from} → {to}
+      <div
+        className={`flex items-center gap-1 text-sm font-semibold ${active ? 'text-gray-900' : 'text-gray-400'}`}
+      >
+        {from}
+        <Icon icon={ArrowRight} size={14} />
+        {to}
       </div>
       <div className="text-xs text-gray-500">{formatDate(date)}</div>
     </div>
   )
+
+  if (href) {
+    return (
+      <Link href={href} className="hover:opacity-80">
+        {content}
+      </Link>
+    )
+  }
+  return content
 }

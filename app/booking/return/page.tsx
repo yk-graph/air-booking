@@ -74,6 +74,7 @@ export default async function ReturnPage({
         trip="round"
         activeLeg="return"
         outboundDate={depart}
+        outboundHref={outboundHref}
       />
 
       <main className="mx-auto max-w-5xl px-6 py-10">

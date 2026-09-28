@@ -54,6 +54,10 @@ export default async function PassengerPage({
   const add = cabinAddPrice[cabin]
   const total = outboundFlight.basePrice + add + (returnFlight ? returnFlight.basePrice + add : 0)
 
+  const dateParams: Record<string, string> = { from, to, trip, cabin, depart }
+  if (returnDate) dateParams.returnDate = returnDate
+  const dateQuery = new URLSearchParams(dateParams).toString()
+
   return (
     <div className="min-h-screen bg-white">
       <BookingHeader
@@ -65,6 +69,8 @@ export default async function PassengerPage({
         outboundDate={depart}
         returnDate={returnDate}
         totalLabel={`C$${total.toLocaleString('en-US')}`}
+        outboundHref={`/booking/outbound?${dateQuery}`}
+        returnHref={trip === 'round' ? `/booking/return?${dateQuery}` : undefined}
       />
 
       <main className="mx-auto max-w-3xl px-6 py-10">
