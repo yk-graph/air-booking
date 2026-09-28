@@ -1,7 +1,13 @@
 'use client'
 
+import { ArrowRightLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+
+import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
+import { Icon } from '@/components/ui/icon'
+import { LoadingDots } from '@/components/ui/loading-dots'
+import { flagCodeForCountry } from '@/lib/countries'
 
 export type AirportOption = {
   code: string
@@ -12,12 +18,11 @@ export type AirportOption = {
 
 type TripType = 'round' | 'oneway'
 
-const selectClass =
-  'w-full truncate rounded border border-gray-300 px-4 py-4 text-lg text-gray-900 focus:border-emerald-600 focus:outline-none'
 const labelClass = 'text-sm text-gray-500'
 
 export function FlightSearch({ airports }: { airports: AirportOption[] }) {
   const router = useRouter()
+  const [pending, startTransition] = useTransition()
   const [trip, setTrip] = useState<TripType>('round')
   const [origin, setOrigin] = useState('')
   const [destination, setDestination] = useState('')
@@ -32,19 +37,18 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
   const search = () => {
     if (!canSearch) return
     const query = new URLSearchParams({ from: origin, to: destination, trip })
-    router.push(`/booking/outbound?${query.toString()}`)
+    startTransition(() => router.push(`/booking/outbound?${query.toString()}`))
   }
 
-  const renderOptions = (disabledCode: string) => (
-    <>
-      <option value="">Select</option>
-      {airports.map((airport) => (
-        <option key={airport.code} value={airport.code} disabled={airport.code === disabledCode}>
-          {airport.city} — {airport.code} {airport.name} ({airport.country})
-        </option>
-      ))}
-    </>
-  )
+  const toItem = (airport: AirportOption): ComboboxItem => ({
+    value: airport.code,
+    primary: airport.city,
+    secondary: airport.name,
+    flagCode: flagCodeForCountry(airport.country),
+    searchText: `${airport.city} ${airport.code} ${airport.name}`,
+  })
+  const originItems = airports.filter((airport) => airport.code !== destination).map(toItem)
+  const destinationItems = airports.filter((airport) => airport.code !== origin).map(toItem)
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-xl md:p-10">
@@ -82,13 +86,7 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
       <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-center">
         <div className="min-w-0 flex-1">
           <span className={`mb-1 block md:hidden ${labelClass}`}>Origin (Country, Region)</span>
-          <select
-            value={origin}
-            onChange={(event) => setOrigin(event.target.value)}
-            className={selectClass}
-          >
-            {renderOptions(destination)}
-          </select>
+          <Combobox value={origin} onChange={setOrigin} items={originItems} />
         </div>
 
         <button
@@ -97,20 +95,14 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
           onClick={swap}
           className="flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-50"
         >
-          ⇄
+          <Icon icon={ArrowRightLeft} size={18} />
         </button>
 
         <div className="min-w-0 flex-1">
           <span className={`mb-1 block md:hidden ${labelClass}`}>
             Destination (Country, Region)
           </span>
-          <select
-            value={destination}
-            onChange={(event) => setDestination(event.target.value)}
-            className={selectClass}
-          >
-            {renderOptions(origin)}
-          </select>
+          <Combobox value={destination} onChange={setDestination} items={destinationItems} />
         </div>
       </div>
 
@@ -118,12 +110,18 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
         <button
           type="button"
           onClick={search}
-          disabled={!canSearch}
-          className="w-full max-w-sm rounded bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+          disabled={!canSearch || pending}
+          className="inline-flex w-full max-w-sm items-center justify-center rounded bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
-          Search Flight
+          {pending ? <LoadingDots /> : 'Search Flight'}
         </button>
       </div>
+
+      {pending && (
+        <div className="fixed bottom-6 left-6 z-50 rounded-full bg-gray-900 px-4 py-2 text-white shadow-lg">
+          <LoadingDots />
+        </div>
+      )}
     </div>
   )
 }
