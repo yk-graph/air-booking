@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRightLeft } from 'lucide-react'
+import { ArrowRightLeft, ArrowUpDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
@@ -95,7 +95,8 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
           onClick={swap}
           className="flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-full border border-gray-300 text-gray-500 hover:bg-gray-50"
         >
-          <Icon icon={ArrowRightLeft} size={18} />
+          <Icon icon={ArrowUpDown} size={18} className="md:hidden" />
+          <Icon icon={ArrowRightLeft} size={18} className="hidden md:block" />
         </button>
 
         <div className="min-w-0 flex-1">
