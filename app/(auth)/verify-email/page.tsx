@@ -19,12 +19,12 @@ export default async function VerifyEmailPage({
   const message = status && status in MESSAGES ? MESSAGES[status as VerifyResult] : MESSAGES.error
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center gap-4 px-6 text-center">
+    <div className="flex flex-col items-center gap-4 text-center">
       <h1 className="text-xl font-semibold">Email verification</h1>
       <p className="text-gray-600">{message}</p>
       <Link href="/" className="underline">
         Go to home
       </Link>
-    </main>
+    </div>
   )
 }
