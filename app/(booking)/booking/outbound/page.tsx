@@ -1,8 +1,10 @@
+import { ArrowRight } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 import { BookingHeader } from '@/components/booking/booking-header'
 import { CabinToggle } from '@/components/booking/cabin-toggle'
 import { DateCalendar } from '@/components/booking/date-calendar'
+import { Icon } from '@/components/ui/icon'
 import { airportTimeZones } from '@/constants/airport-timezones'
 import { zonedDateKey } from '@/lib/flights/airport-timezones'
 import { getMonthlyFares } from '@/lib/flights/fares'
@@ -70,6 +72,13 @@ export default async function OutboundPage({
       />
 
       <main className="mx-auto max-w-5xl px-6 py-10">
+        <h1 className="text-3xl font-semibold text-gray-900">Select Date of Outbound Flight</h1>
+        <p className="mt-2 mb-8 flex items-center gap-2 text-gray-500">
+          {fromAirport.city}
+          <Icon icon={ArrowRight} size={18} />
+          {toAirport.city}
+        </p>
+
         <div className="mb-6 flex items-center justify-end">
           <CabinToggle cabin={cabinOut} hrefFor={cabinHref} />
         </div>
