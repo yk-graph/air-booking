@@ -3,16 +3,12 @@ import { FlightSearch } from '@/components/home/flight-search'
 import { HeroCarousel } from '@/components/home/hero-carousel'
 import { SiteHeader } from '@/components/layout/site-header'
 import { getCurrentAccount } from '@/lib/auth/session'
-import { prisma } from '@/lib/prisma'
+import { airports } from '@/lib/flights/airports'
+
+const sortedAirports = [...airports].sort((a, b) => a.city.localeCompare(b.city))
 
 export default async function HomePage() {
-  const [account, airports] = await Promise.all([
-    getCurrentAccount(),
-    prisma.airport.findMany({
-      orderBy: { city: 'asc' },
-      select: { code: true, city: true, name: true, country: true },
-    }),
-  ])
+  const account = await getCurrentAccount()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -28,7 +24,7 @@ export default async function HomePage() {
         <HeroCarousel />
 
         <div className="relative z-40 mx-auto -mt-20 max-w-4xl px-4 pb-16">
-          <FlightSearch airports={airports} />
+          <FlightSearch airports={sortedAirports} />
         </div>
       </section>
     </div>
