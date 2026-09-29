@@ -86,13 +86,12 @@ export default async function OutboundSeatsPage({
       />
 
       <main className="mx-auto max-w-5xl px-6 py-10">
-        <h1 className="mb-1 flex items-center gap-2 text-2xl font-semibold">
-          Select your seat — {fromAirport.city}
+        <h1 className="text-3xl font-semibold text-gray-900">Select Seat of Outbound Flight</h1>
+        <p className="mt-2 mb-8 flex items-center gap-2 text-gray-500">
+          {fromAirport.city}
           <Icon icon={ArrowRight} size={18} />
           {toAirport.city}
-        </h1>
-        <p className="mb-8 text-sm text-gray-500">
-          {cabinOut === CabinClass.BUSINESS ? 'Business' : 'Economy'} cabin
+          <span>· {cabinOut === CabinClass.BUSINESS ? 'Business' : 'Economy'}</span>
         </p>
         <SeatGrid seats={seats} hrefFor={hrefFor} />
       </main>

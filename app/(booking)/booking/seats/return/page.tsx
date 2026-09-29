@@ -91,13 +91,12 @@ export default async function ReturnSeatsPage({
       />
 
       <main className="mx-auto max-w-5xl px-6 py-10">
-        <h1 className="mb-1 flex items-center gap-2 text-2xl font-semibold">
-          Select your seat — {toAirport.city}
+        <h1 className="text-3xl font-semibold text-gray-900">Select Seat of Return Flight</h1>
+        <p className="mt-2 mb-8 flex items-center gap-2 text-gray-500">
+          {toAirport.city}
           <Icon icon={ArrowRight} size={18} />
           {fromAirport.city}
-        </h1>
-        <p className="mb-8 text-sm text-gray-500">
-          {cabinRet === CabinClass.BUSINESS ? 'Business' : 'Economy'} cabin
+          <span>· {cabinRet === CabinClass.BUSINESS ? 'Business' : 'Economy'}</span>
         </p>
         <SeatGrid seats={seats} hrefFor={hrefFor} />
       </main>
