@@ -27,7 +27,7 @@ export default async function HomePage() {
       <section className="relative">
         <HeroCarousel />
 
-        <div className="relative z-10 mx-auto -mt-20 max-w-4xl px-4 pb-16">
+        <div className="relative z-40 mx-auto -mt-20 max-w-4xl px-4 pb-16">
           <FlightSearch airports={airports} />
         </div>
       </section>
