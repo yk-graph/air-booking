@@ -3,6 +3,7 @@ import 'server-only'
 import { prisma } from '@/lib/prisma'
 
 import { airportTimeZones, zonedDateKey } from './airport-timezones'
+import { routeCode } from './routes'
 
 export type FlightForDate = {
   id: string
@@ -30,8 +31,7 @@ export async function getFlightForDate(
 
   const flights = await prisma.flight.findMany({
     where: {
-      originAirport: { code: originCode },
-      destinationAirport: { code: destinationCode },
+      flightMap: { code: routeCode(originCode, destinationCode) },
       departureAt: { gte: rangeStart, lt: rangeEnd },
     },
     select: {

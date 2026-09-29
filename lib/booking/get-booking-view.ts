@@ -38,8 +38,12 @@ export async function getBookingView(bookingId: string): Promise<BookingView | n
           seat: { select: { seatRow: true, seatColumn: true, cabinClass: true } },
           flight: {
             include: {
-              originAirport: { select: { code: true, city: true } },
-              destinationAirport: { select: { code: true, city: true } },
+              flightMap: {
+                include: {
+                  originAirport: { select: { code: true, city: true } },
+                  destinationAirport: { select: { code: true, city: true } },
+                },
+              },
             },
           },
         },
@@ -49,12 +53,13 @@ export async function getBookingView(bookingId: string): Promise<BookingView | n
   if (!booking) return null
 
   const legs: LegView[] = booking.tickets.map((ticket) => {
-    const originTz = airportTimeZones[ticket.flight.originAirport.code] ?? 'UTC'
-    const destinationTz = airportTimeZones[ticket.flight.destinationAirport.code] ?? 'UTC'
+    const { originAirport, destinationAirport } = ticket.flight.flightMap
+    const originTz = airportTimeZones[originAirport.code] ?? 'UTC'
+    const destinationTz = airportTimeZones[destinationAirport.code] ?? 'UTC'
     return {
       flightNumber: ticket.flight.flightNumber,
-      fromCity: ticket.flight.originAirport.city,
-      toCity: ticket.flight.destinationAirport.city,
+      fromCity: originAirport.city,
+      toCity: destinationAirport.city,
       departure: formatZonedDateTime(ticket.flight.departureAt, originTz),
       arrival: formatZonedDateTime(ticket.flight.arrivalAt, destinationTz),
       seat: `${ticket.seat.seatRow}${ticket.seat.seatColumn}`,

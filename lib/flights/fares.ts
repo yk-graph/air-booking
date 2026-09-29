@@ -4,6 +4,7 @@ import type { CabinClass } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 
 import { airportTimeZones, zonedDateKey } from './airport-timezones'
+import { routeCode } from './routes'
 import { cabinAddPrice } from './seat-map'
 
 export const scheduleMonths = ['2026-10', '2026-11', '2026-12']
@@ -33,8 +34,7 @@ export async function getMonthlyFares(
 
   const flights = await prisma.flight.findMany({
     where: {
-      originAirport: { code: originCode },
-      destinationAirport: { code: destinationCode },
+      flightMap: { code: routeCode(originCode, destinationCode) },
       departureAt: { gte: rangeStart, lt: rangeEnd },
     },
     select: { id: true, departureAt: true, basePrice: true },

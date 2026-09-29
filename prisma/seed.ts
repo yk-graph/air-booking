@@ -4,6 +4,7 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 import { airportTimeZones } from '../lib/flights/airport-timezones'
 import { airports } from '../lib/flights/airports'
+import { routeCode, routes } from '../lib/flights/routes'
 import { PrismaClient } from '../lib/generated/prisma/client'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -255,7 +256,32 @@ function zonedWallTimeToUtc(
   return new Date(utc)
 }
 
-async function seedFlights(airportIdByCode: Map<string, string>): Promise<number> {
+async function seedFlightMaps(
+  airportIdByCode: Map<string, string>,
+): Promise<Map<string, string>> {
+  const idByCode = new Map<string, string>()
+  for (const route of routes) {
+    const originAirportId = airportIdByCode.get(route.originCode)
+    const destinationAirportId = airportIdByCode.get(route.destinationCode)
+    if (!originAirportId || !destinationAirportId) {
+      throw new Error(`Missing airport for route ${route.originCode}-${route.destinationCode}`)
+    }
+    const code = routeCode(route.originCode, route.destinationCode)
+    const flightMap = await prisma.flightMap.upsert({
+      where: { code },
+      update: { originAirportId, destinationAirportId },
+      create: { code, originAirportId, destinationAirportId },
+    })
+    idByCode.set(code, flightMap.id)
+  }
+
+  const codes = routes.map((route) => routeCode(route.originCode, route.destinationCode))
+  await prisma.flightMap.deleteMany({ where: { code: { notIn: codes }, flights: { none: {} } } })
+
+  return idByCode
+}
+
+async function seedFlights(flightMapIdByCode: Map<string, string>): Promise<number> {
   const startUtc = Date.UTC(scheduleStart.year, scheduleStart.month - 1, scheduleStart.day)
   const endUtc = Date.UTC(scheduleEnd.year, scheduleEnd.month - 1, scheduleEnd.day)
   let count = 0
@@ -263,10 +289,11 @@ async function seedFlights(airportIdByCode: Map<string, string>): Promise<number
   for (const schedule of flightSchedules) {
     const originTimeZone = airportTimeZones[schedule.originCode]
     const destinationTimeZone = airportTimeZones[schedule.destinationCode]
-    const originAirportId = airportIdByCode.get(schedule.originCode)
-    const destinationAirportId = airportIdByCode.get(schedule.destinationCode)
-    if (!originTimeZone || !destinationTimeZone || !originAirportId || !destinationAirportId) {
-      throw new Error(`Missing airport data for flight ${schedule.flightNumber}`)
+    const flightMapId = flightMapIdByCode.get(
+      routeCode(schedule.originCode, schedule.destinationCode),
+    )
+    if (!originTimeZone || !destinationTimeZone || !flightMapId) {
+      throw new Error(`Missing route data for flight ${schedule.flightNumber}`)
     }
 
     const [departureHour, departureMinute] = schedule.departureLocal.split(':').map(Number)
@@ -299,16 +326,14 @@ async function seedFlights(airportIdByCode: Map<string, string>): Promise<number
       await prisma.flight.upsert({
         where: { flightNumber_departureAt: { flightNumber: schedule.flightNumber, departureAt } },
         update: {
-          originAirportId,
-          destinationAirportId,
+          flightMapId,
           arrivalAt,
           durationMinutes: schedule.durationMinutes,
           basePrice: schedule.basePrice,
         },
         create: {
           flightNumber: schedule.flightNumber,
-          originAirportId,
-          destinationAirportId,
+          flightMapId,
           departureAt,
           arrivalAt,
           durationMinutes: schedule.durationMinutes,
@@ -336,10 +361,11 @@ async function main() {
 
   const stored = await prisma.airport.findMany({ select: { id: true, code: true } })
   const airportIdByCode = new Map(stored.map((airport) => [airport.code, airport.id]))
-  const flightCount = await seedFlights(airportIdByCode)
+  const flightMapIdByCode = await seedFlightMaps(airportIdByCode)
+  const flightCount = await seedFlights(flightMapIdByCode)
 
   console.log(
-    `Seeded ${airports.length} airports, removed ${removed.count} stale, seeded ${flightCount} flights`,
+    `Seeded ${airports.length} airports, ${flightMapIdByCode.size} routes, removed ${removed.count} stale, seeded ${flightCount} flights`,
   )
 }
 
