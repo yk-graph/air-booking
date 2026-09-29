@@ -1,4 +1,4 @@
-import { routes } from '../../constants/routes'
+import { routes } from '@/constants/routes'
 
 export function routeCode(originCode: string, destinationCode: string): string {
   return `${originCode}-${destinationCode}`

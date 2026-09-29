@@ -2,17 +2,17 @@ import 'dotenv/config'
 
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-import { airportTimeZones } from '../constants/airport-timezones'
-import { airports } from '../constants/airports'
+import { airportTimeZones } from '@/constants/airport-timezones'
+import { airports } from '@/constants/airports'
 import {
   flightSchedules,
   scheduleEnd,
   scheduleStart,
   type Weekday,
-} from '../constants/flight-schedule'
-import { routes } from '../constants/routes'
-import { routeCode } from '../lib/flights/routes'
-import { PrismaClient } from '../lib/generated/prisma/client'
+} from '@/constants/flight-schedule'
+import { routes } from '@/constants/routes'
+import { routeCode } from '@/lib/flights/routes'
+import { PrismaClient } from '@/lib/generated/prisma/client'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {
