@@ -8,6 +8,7 @@ import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
 import { Icon } from '@/components/ui/icon'
 import { LoadingDots } from '@/components/ui/loading-dots'
 import { flagCodeForCountry } from '@/lib/countries'
+import { destinationsFor, originsFor } from '@/lib/flights/routes'
 
 export type AirportOption = {
   code: string
@@ -32,7 +33,8 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
     setDestination(origin)
   }
 
-  const canSearch = origin !== '' && destination !== '' && origin !== destination
+  const canSearch =
+    origin !== '' && destination !== '' && destinationsFor(origin).includes(destination)
 
   const search = () => {
     if (!canSearch) return
@@ -47,8 +49,16 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
     flagCode: flagCodeForCountry(airport.country),
     searchText: `${airport.city} ${airport.code} ${airport.name}`,
   })
-  const originItems = airports.filter((airport) => airport.code !== destination).map(toItem)
-  const destinationItems = airports.filter((airport) => airport.code !== origin).map(toItem)
+  const validOrigins = destination ? originsFor(destination) : null
+  const validDestinations = origin ? destinationsFor(origin) : null
+  const originItems = airports
+    .filter((airport) => airport.code !== destination)
+    .filter((airport) => !validOrigins || validOrigins.includes(airport.code))
+    .map(toItem)
+  const destinationItems = airports
+    .filter((airport) => airport.code !== origin)
+    .filter((airport) => !validDestinations || validDestinations.includes(airport.code))
+    .map(toItem)
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-xl md:p-10">
