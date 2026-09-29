@@ -4,12 +4,7 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 import { airportTimeZones } from '@/constants/airport-timezones'
 import { airports } from '@/constants/airports'
-import {
-  flightSchedules,
-  scheduleEnd,
-  scheduleStart,
-  type Weekday,
-} from '@/constants/flight-schedule'
+import { flightSchedules, scheduleMonths, type Weekday } from '@/constants/flight-schedule'
 import { routes } from '@/constants/routes'
 import { routeCode } from '@/lib/flights/routes'
 import { PrismaClient } from '@/lib/generated/prisma/client'
@@ -92,8 +87,10 @@ async function seedFlightMaps(airportIdByCode: Map<string, string>): Promise<Map
 }
 
 async function seedFlights(flightMapIdByCode: Map<string, string>): Promise<number> {
-  const startUtc = Date.UTC(scheduleStart.year, scheduleStart.month - 1, scheduleStart.day)
-  const endUtc = Date.UTC(scheduleEnd.year, scheduleEnd.month - 1, scheduleEnd.day)
+  const firstMonth = scheduleMonths[0]
+  const lastMonth = scheduleMonths[scheduleMonths.length - 1]
+  const startUtc = Date.UTC(Number(firstMonth.slice(0, 4)), Number(firstMonth.slice(5, 7)) - 1, 1)
+  const endUtc = Date.UTC(Number(lastMonth.slice(0, 4)), Number(lastMonth.slice(5, 7)), 0)
   let count = 0
 
   for (const schedule of flightSchedules) {

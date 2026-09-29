@@ -12,8 +12,6 @@ export type FlightSchedule = {
   basePrice: number
 }
 
-export const scheduleStart = { year: 2026, month: 10, day: 1 }
-export const scheduleEnd = { year: 2026, month: 12, day: 31 }
 export const scheduleMonths = ['2026-10', '2026-11', '2026-12']
 
 export const flightSchedules: FlightSchedule[] = [
