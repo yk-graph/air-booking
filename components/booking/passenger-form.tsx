@@ -13,7 +13,8 @@ export type BookingSelection = {
   from: string
   to: string
   trip: string
-  cabin: string
+  cabinOut: string
+  cabinRet: string
   depart: string
   returnDate?: string
   seatOut: string
@@ -98,7 +99,8 @@ export function PassengerForm({
     formData.set('from', selection.from)
     formData.set('to', selection.to)
     formData.set('trip', selection.trip)
-    formData.set('cabin', selection.cabin)
+    formData.set('cabinOut', selection.cabinOut)
+    formData.set('cabinRet', selection.cabinRet)
     formData.set('depart', selection.depart)
     if (selection.returnDate) formData.set('returnDate', selection.returnDate)
     formData.set('seatOut', selection.seatOut)

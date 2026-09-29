@@ -14,7 +14,7 @@ type SearchParams = {
   from?: string
   to?: string
   trip?: string
-  cabin?: string
+  cabinOut?: string
   month?: string
 }
 
@@ -29,7 +29,8 @@ export default async function OutboundPage({
   if (!from || !to) redirect('/')
 
   const trip = params.trip === 'oneway' ? 'oneway' : 'round'
-  const cabin: CabinClass = params.cabin === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const cabinOut: CabinClass =
+    params.cabinOut === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
   const scheduleMonths = getScheduleMonths()
   const month = scheduleMonths.includes(params.month ?? '') ? params.month! : scheduleMonths[0]
 
@@ -41,7 +42,7 @@ export default async function OutboundPage({
   const toAirport = airports.find((airport) => airport.code === to)
   if (!fromAirport || !toAirport) redirect('/')
 
-  const fares = await getMonthlyFares(from, to, month, cabin)
+  const fares = await getMonthlyFares(from, to, month, cabinOut)
   const todayKey = zonedDateKey(new Date(), airportTimeZones[from] ?? 'UTC')
 
   const base = { from, to, trip }
@@ -52,10 +53,11 @@ export default async function OutboundPage({
   const buildHref = (path: string, extra: Record<string, string>) =>
     `${path}?${new URLSearchParams({ ...base, ...extra }).toString()}`
 
-  const monthHref = (target: string) => buildHref('/booking/outbound', { cabin, month: target })
-  const cabinHref = (target: CabinClass) => buildHref('/booking/outbound', { cabin: target, month })
+  const monthHref = (target: string) => buildHref('/booking/outbound', { cabinOut, month: target })
+  const cabinHref = (target: CabinClass) =>
+    buildHref('/booking/outbound', { cabinOut: target, month })
   const nextStep = trip === 'round' ? '/booking/return' : '/booking/seats/outbound'
-  const selectHref = (date: string) => buildHref(nextStep, { cabin, depart: date })
+  const selectHref = (date: string) => buildHref(nextStep, { cabinOut, depart: date })
 
   return (
     <div className="min-h-screen bg-white">
@@ -69,7 +71,7 @@ export default async function OutboundPage({
 
       <main className="mx-auto max-w-5xl px-6 py-10">
         <div className="mb-6 flex items-center justify-end">
-          <CabinToggle cabin={cabin} hrefFor={cabinHref} />
+          <CabinToggle cabin={cabinOut} hrefFor={cabinHref} />
         </div>
 
         <DateCalendar

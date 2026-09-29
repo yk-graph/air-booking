@@ -14,7 +14,8 @@ type SearchParams = {
   from?: string
   to?: string
   trip?: string
-  cabin?: string
+  cabinOut?: string
+  cabinRet?: string
   depart?: string
   month?: string
 }
@@ -29,11 +30,21 @@ export default async function ReturnPage({
   const to = params.to
   const depart = params.depart
   if (!from || !to || !depart) redirect('/')
+  const cabinOut: CabinClass =
+    params.cabinOut === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
   if (params.trip === 'oneway') {
-    redirect(`/booking/passenger?${new URLSearchParams({ from, to, trip: 'oneway', depart })}`)
+    redirect(
+      `/booking/passenger?${new URLSearchParams({ from, to, trip: 'oneway', cabinOut, depart })}`,
+    )
   }
 
-  const cabin: CabinClass = params.cabin === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  // The return leg defaults to the outbound cabin until the traveller changes it.
+  const cabinRet: CabinClass =
+    params.cabinRet === 'BUSINESS'
+      ? CabinClass.BUSINESS
+      : params.cabinRet === 'ECONOMY'
+        ? CabinClass.ECONOMY
+        : cabinOut
   const scheduleMonths = getScheduleMonths()
   const departMonth = depart.slice(0, 7)
   const month = scheduleMonths.includes(params.month ?? '')
@@ -51,11 +62,11 @@ export default async function ReturnPage({
   if (!fromAirport || !toAirport) redirect('/')
 
   // Return leg flies the reversed route (to -> from).
-  const fares = await getMonthlyFares(to, from, month, cabin)
+  const fares = await getMonthlyFares(to, from, month, cabinRet)
   const todayKey = zonedDateKey(new Date(), airportTimeZones[to] ?? 'UTC')
   const minDateKey = depart > todayKey ? depart : todayKey
 
-  const base = { from, to, trip: 'round', cabin, depart }
+  const base = { from, to, trip: 'round', cabinOut, cabinRet, depart }
   const monthIndex = scheduleMonths.indexOf(month)
   const prevMonth = monthIndex > 0 ? scheduleMonths[monthIndex - 1] : null
   const nextMonth = monthIndex < scheduleMonths.length - 1 ? scheduleMonths[monthIndex + 1] : null
@@ -64,7 +75,8 @@ export default async function ReturnPage({
     `${path}?${new URLSearchParams({ ...base, ...extra }).toString()}`
 
   const monthHref = (target: string) => buildHref('/booking/return', { month: target })
-  const cabinHref = (target: CabinClass) => buildHref('/booking/return', { cabin: target, month })
+  const cabinHref = (target: CabinClass) =>
+    buildHref('/booking/return', { cabinRet: target, month })
   const outboundHref = buildHref('/booking/outbound', { month: departMonth })
   const selectHref = (date: string) => buildHref('/booking/seats/outbound', { returnDate: date })
 
@@ -82,7 +94,7 @@ export default async function ReturnPage({
 
       <main className="mx-auto max-w-5xl px-6 py-10">
         <div className="mb-6 flex items-center justify-end">
-          <CabinToggle cabin={cabin} hrefFor={cabinHref} />
+          <CabinToggle cabin={cabinRet} hrefFor={cabinHref} />
         </div>
 
         <DateCalendar

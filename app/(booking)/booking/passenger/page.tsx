@@ -12,11 +12,20 @@ type SearchParams = {
   from?: string
   to?: string
   trip?: string
-  cabin?: string
+  cabinOut?: string
+  cabinRet?: string
   depart?: string
   returnDate?: string
   seatOut?: string
   seatRet?: string
+}
+
+function parseCabin(value: string | undefined): CabinClass {
+  return value === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+}
+
+function cabinLabel(cabin: CabinClass): string {
+  return cabin === CabinClass.BUSINESS ? 'Business' : 'Economy'
 }
 
 export default async function PassengerPage({
@@ -32,7 +41,8 @@ export default async function PassengerPage({
   if (!from || !to || !depart || !seatOut) redirect('/')
 
   const trip = params.trip === 'oneway' ? 'oneway' : 'round'
-  const cabin: CabinClass = params.cabin === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const cabinOut = parseCabin(params.cabinOut)
+  const cabinRet = parseCabin(params.cabinRet)
   const returnDate = params.returnDate
   const seatRet = params.seatRet
   if (trip === 'round' && (!returnDate || !seatRet)) redirect('/')
@@ -51,10 +61,13 @@ export default async function PassengerPage({
   if (!fromAirport || !toAirport || !outboundFlight) redirect('/')
   if (trip === 'round' && !returnFlight) redirect('/')
 
-  const add = cabinAddPrice[cabin]
-  const total = outboundFlight.basePrice + add + (returnFlight ? returnFlight.basePrice + add : 0)
+  const total =
+    outboundFlight.basePrice +
+    cabinAddPrice[cabinOut] +
+    (returnFlight ? returnFlight.basePrice + cabinAddPrice[cabinRet] : 0)
 
-  const dateParams: Record<string, string> = { from, to, trip, cabin, depart }
+  const dateParams: Record<string, string> = { from, to, trip, cabinOut, depart }
+  if (trip === 'round') dateParams.cabinRet = cabinRet
   if (returnDate) dateParams.returnDate = returnDate
   const dateQuery = new URLSearchParams(dateParams).toString()
 
@@ -76,13 +89,12 @@ export default async function PassengerPage({
       <main className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="mb-2 text-3xl font-semibold">Enter Passenger Information</h1>
         <p className="mb-8 text-sm text-gray-500">
-          Seats: {seatOut}
-          {seatRet ? ` · ${seatRet}` : ''} ·{' '}
-          {cabin === CabinClass.BUSINESS ? 'Business' : 'Economy'}
+          {seatOut} · {cabinLabel(cabinOut)}
+          {seatRet ? ` / ${seatRet} · ${cabinLabel(cabinRet)}` : ''}
         </p>
 
         <PassengerForm
-          selection={{ from, to, trip, cabin, depart, returnDate, seatOut, seatRet }}
+          selection={{ from, to, trip, cabinOut, cabinRet, depart, returnDate, seatOut, seatRet }}
           defaultEmail={account?.email}
         />
       </main>

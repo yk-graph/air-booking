@@ -14,9 +14,14 @@ type SearchParams = {
   from?: string
   to?: string
   trip?: string
-  cabin?: string
+  cabinOut?: string
+  cabinRet?: string
   depart?: string
   returnDate?: string
+}
+
+function parseCabin(value: string | undefined): CabinClass {
+  return value === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
 }
 
 export default async function OutboundSeatsPage({
@@ -31,7 +36,8 @@ export default async function OutboundSeatsPage({
   if (!from || !to || !depart) redirect('/')
 
   const trip = params.trip === 'oneway' ? 'oneway' : 'round'
-  const cabin: CabinClass = params.cabin === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const cabinOut = parseCabin(params.cabinOut)
+  const cabinRet = parseCabin(params.cabinRet)
   const returnDate = params.returnDate
 
   const airports = await prisma.airport.findMany({
@@ -46,17 +52,17 @@ export default async function OutboundSeatsPage({
   if (!outboundFlight) redirect('/')
 
   const seats = (await getFlightSeatMap(outboundFlight.id)).filter(
-    (seat) => seat.cabinClass === cabin,
+    (seat) => seat.cabinClass === cabinOut,
   )
 
-  const add = cabinAddPrice[cabin]
-  let total = outboundFlight.basePrice + add
+  let total = outboundFlight.basePrice + cabinAddPrice[cabinOut]
   if (trip === 'round' && returnDate) {
     const returnFlight = await getFlightForDate(to, from, returnDate)
-    if (returnFlight) total += returnFlight.basePrice + add
+    if (returnFlight) total += returnFlight.basePrice + cabinAddPrice[cabinRet]
   }
 
-  const base: Record<string, string> = { from, to, trip, cabin, depart }
+  const base: Record<string, string> = { from, to, trip, cabinOut, depart }
+  if (trip === 'round') base.cabinRet = cabinRet
   if (returnDate) base.returnDate = returnDate
 
   const nextStep = trip === 'round' ? '/booking/seats/return' : '/booking/passenger'
@@ -90,7 +96,7 @@ export default async function OutboundSeatsPage({
           {toAirport.city}
         </h1>
         <p className="mb-8 text-sm text-gray-500">
-          {cabin === CabinClass.BUSINESS ? 'Business' : 'Economy'} cabin
+          {cabinOut === CabinClass.BUSINESS ? 'Business' : 'Economy'} cabin
         </p>
         <SeatGrid seats={seats} hrefFor={hrefFor} />
       </main>

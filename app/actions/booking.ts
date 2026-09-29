@@ -45,8 +45,10 @@ export async function createBooking(
   const from = String(formData.get('from') ?? '')
   const to = String(formData.get('to') ?? '')
   const trip = formData.get('trip') === 'oneway' ? 'oneway' : 'round'
-  const cabin: CabinClass =
-    formData.get('cabin') === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const cabinOut: CabinClass =
+    formData.get('cabinOut') === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const cabinRet: CabinClass =
+    formData.get('cabinRet') === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
   const depart = String(formData.get('depart') ?? '')
   const returnDate = String(formData.get('returnDate') ?? '')
   const seatOut = parseSeat(formData.get('seatOut') as string | null)
@@ -62,15 +64,19 @@ export async function createBooking(
     return { message: 'The selected flight is no longer available.' }
   }
 
-  const addPrice = cabinAddPrice[cabin]
-  const legs: { flight: FlightForDate; seat: { row: number; column: string } }[] = [
-    { flight: outboundFlight, seat: seatOut },
-  ]
+  const legs: {
+    flight: FlightForDate
+    seat: { row: number; column: string }
+    cabin: CabinClass
+  }[] = [{ flight: outboundFlight, seat: seatOut, cabin: cabinOut }]
   if (trip === 'round' && returnFlight && seatRet) {
-    legs.push({ flight: returnFlight, seat: seatRet })
+    legs.push({ flight: returnFlight, seat: seatRet, cabin: cabinRet })
   }
 
-  const totalPrice = legs.reduce((sum, leg) => sum + leg.flight.basePrice + addPrice, 0)
+  const totalPrice = legs.reduce(
+    (sum, leg) => sum + leg.flight.basePrice + cabinAddPrice[leg.cabin],
+    0,
+  )
   const account = await getCurrentAccount()
   const data = parsed.data
   const toDate = (value: string) => new Date(`${value}T00:00:00Z`)
@@ -103,7 +109,7 @@ export async function createBooking(
             flightId: leg.flight.id,
             seatRow: leg.seat.row,
             seatColumn: leg.seat.column,
-            cabinClass: cabin,
+            cabinClass: leg.cabin,
           },
         })
         await tx.ticket.create({
@@ -111,7 +117,7 @@ export async function createBooking(
             flightId: leg.flight.id,
             seatId: seat.id,
             bookingId: created.id,
-            price: leg.flight.basePrice + addPrice,
+            price: leg.flight.basePrice + cabinAddPrice[leg.cabin],
           },
         })
       }
