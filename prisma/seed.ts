@@ -4,9 +4,10 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 import { airportTimeZones } from '@/constants/airport-timezones'
 import { airports } from '@/constants/airports'
-import { flightSchedules, scheduleMonths, type Weekday } from '@/constants/flight-schedule'
+import { flightSchedules, type Weekday } from '@/constants/flight-schedule'
 import { routes } from '@/constants/routes'
 import { routeCode } from '@/lib/flights/routes'
+import { getScheduleMonths } from '@/lib/flights/schedule'
 import { PrismaClient } from '@/lib/generated/prisma/client'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -87,6 +88,7 @@ async function seedFlightMaps(airportIdByCode: Map<string, string>): Promise<Map
 }
 
 async function seedFlights(flightMapIdByCode: Map<string, string>): Promise<number> {
+  const scheduleMonths = getScheduleMonths()
   const firstMonth = scheduleMonths[0]
   const lastMonth = scheduleMonths[scheduleMonths.length - 1]
   const startUtc = Date.UTC(Number(firstMonth.slice(0, 4)), Number(firstMonth.slice(5, 7)) - 1, 1)
@@ -169,6 +171,9 @@ async function main() {
   const stored = await prisma.airport.findMany({ select: { id: true, code: true } })
   const airportIdByCode = new Map(stored.map((airport) => [airport.code, airport.id]))
   const flightMapIdByCode = await seedFlightMaps(airportIdByCode)
+
+  // Drop unbooked flights so re-seeding matches the rolling window; booked ones are kept.
+  await prisma.flight.deleteMany({ where: { tickets: { none: {} } } })
   const flightCount = await seedFlights(flightMapIdByCode)
 
   console.log(

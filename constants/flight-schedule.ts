@@ -12,8 +12,6 @@ export type FlightSchedule = {
   basePrice: number
 }
 
-export const scheduleMonths = ['2026-10', '2026-11', '2026-12']
-
 export const flightSchedules: FlightSchedule[] = [
   {
     flightNumber: 'ZG045',

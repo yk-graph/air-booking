@@ -4,9 +4,9 @@ import { BookingHeader } from '@/components/booking/booking-header'
 import { CabinToggle } from '@/components/booking/cabin-toggle'
 import { DateCalendar } from '@/components/booking/date-calendar'
 import { airportTimeZones } from '@/constants/airport-timezones'
-import { scheduleMonths } from '@/constants/flight-schedule'
 import { zonedDateKey } from '@/lib/flights/airport-timezones'
 import { getMonthlyFares } from '@/lib/flights/fares'
+import { getScheduleMonths } from '@/lib/flights/schedule'
 import { CabinClass } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 
@@ -30,6 +30,7 @@ export default async function OutboundPage({
 
   const trip = params.trip === 'oneway' ? 'oneway' : 'round'
   const cabin: CabinClass = params.cabin === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const scheduleMonths = getScheduleMonths()
   const month = scheduleMonths.includes(params.month ?? '') ? params.month! : scheduleMonths[0]
 
   const airports = await prisma.airport.findMany({
