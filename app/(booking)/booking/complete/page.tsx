@@ -17,9 +17,9 @@ export default async function CompletePage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <div className="mb-8 rounded-lg border border-emerald-200 bg-emerald-50 p-6 text-center">
-        <h1 className="mb-1 text-2xl font-semibold text-emerald-800">Booking confirmed</h1>
-        <p className="text-sm text-emerald-700">
+      <div className="mb-8 rounded-lg border border-brand-200 bg-brand-50 p-6 text-center">
+        <h1 className="mb-1 text-2xl font-semibold text-brand-800">Booking confirmed</h1>
+        <p className="text-sm text-brand-700">
           Reference <span className="font-mono font-semibold">{booking.reference}</span>
         </p>
       </div>
@@ -27,7 +27,7 @@ export default async function CompletePage({
       <BookingSummary booking={booking} />
 
       <div className="mt-8 text-center">
-        <Link href="/" className="text-emerald-700 underline">
+        <Link href="/" className="text-brand-700 underline">
           Back to home
         </Link>
       </div>

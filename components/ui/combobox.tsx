@@ -55,7 +55,7 @@ export function Combobox({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="flex w-full items-center gap-3 rounded border border-gray-300 px-4 py-4 text-left text-lg focus:border-emerald-600 focus:outline-none"
+        className="flex w-full items-center gap-3 rounded border border-gray-300 px-4 py-4 text-left text-lg focus:border-brand-600 focus:outline-none"
       >
         {selected ? (
           <span className="flex min-w-0 flex-1 items-center gap-3">
@@ -81,7 +81,7 @@ export function Combobox({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search…"
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand-600 focus:outline-none"
             />
           </div>
 
@@ -92,7 +92,7 @@ export function Combobox({
               key={item.value}
               type="button"
               onClick={() => select(item.value)}
-              className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50"
+              className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-brand-50"
             >
               {item.flagCode && <span className={`fi fi-${item.flagCode} shrink-0`} />}
               <span className="min-w-0 flex-1 truncate">
@@ -101,7 +101,7 @@ export function Combobox({
                   <span className="ml-2 text-sm text-gray-400">{item.secondary}</span>
                 )}
               </span>
-              {item.value === value && <Icon icon={Check} size={16} className="text-emerald-600" />}
+              {item.value === value && <Icon icon={Check} size={16} className="text-brand-600" />}
             </button>
           ))}
         </div>

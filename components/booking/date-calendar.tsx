@@ -72,10 +72,10 @@ export function DateCalendar({
               <Link
                 key={i}
                 href={selectHref(dateKey)}
-                className="flex h-20 flex-col items-center justify-center gap-1 rounded hover:bg-emerald-50"
+                className="flex h-20 flex-col items-center justify-center gap-1 rounded hover:bg-brand-50"
               >
                 <span className="text-lg text-gray-900">{day}</span>
-                <span className="text-xs font-medium text-emerald-700">
+                <span className="text-xs font-medium text-brand-700">
                   {formatPrice(fare.price)}
                 </span>
               </Link>

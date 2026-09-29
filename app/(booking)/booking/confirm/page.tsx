@@ -32,7 +32,7 @@ export default async function ConfirmPage({
         <input type="hidden" name="bookingId" value={booking.id} />
         <button
           type="submit"
-          className="w-full max-w-sm rounded bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800"
+          className="w-full max-w-sm rounded bg-brand-700 px-6 py-3 text-base font-semibold text-white hover:bg-brand-800"
         >
           Confirm booking
         </button>

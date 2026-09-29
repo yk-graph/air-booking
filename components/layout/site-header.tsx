@@ -12,7 +12,7 @@ export function SiteHeader({ account }: { account: CurrentAccount | null }) {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm text-gray-700 md:flex">
-          <Link href="/login" className="hover:text-emerald-700">
+          <Link href="/login" className="hover:text-brand-700">
             Manage Booking
           </Link>
           <span className="text-gray-300">|</span>
@@ -26,7 +26,7 @@ export function SiteHeader({ account }: { account: CurrentAccount | null }) {
             <form action={logout}>
               <button
                 type="submit"
-                className="rounded bg-emerald-700 px-4 py-2 font-medium text-white hover:bg-emerald-800"
+                className="rounded bg-brand-700 px-4 py-2 font-medium text-white hover:bg-brand-800"
               >
                 Log out
               </button>
@@ -35,7 +35,7 @@ export function SiteHeader({ account }: { account: CurrentAccount | null }) {
         ) : (
           <Link
             href="/login"
-            className="rounded bg-emerald-700 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+            className="rounded bg-brand-700 px-5 py-2 text-sm font-medium text-white hover:bg-brand-800"
           >
             Login
           </Link>

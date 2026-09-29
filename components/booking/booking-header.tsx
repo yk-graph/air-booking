@@ -87,7 +87,7 @@ function Leg({
   href?: string
 }) {
   const content = (
-    <div className={active ? 'border-b-2 border-emerald-600 pb-1' : 'pb-1'}>
+    <div className={active ? 'border-b-2 border-brand-600 pb-1' : 'pb-1'}>
       <div
         className={`flex items-center gap-1 text-sm font-semibold ${active ? 'text-gray-900' : 'text-gray-400'}`}
       >

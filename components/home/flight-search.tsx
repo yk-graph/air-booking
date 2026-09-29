@@ -58,7 +58,7 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
           onClick={() => setTrip('round')}
           className={`pb-2 text-lg font-semibold ${
             trip === 'round'
-              ? 'border-b-2 border-emerald-600 text-gray-900'
+              ? 'border-b-2 border-brand-600 text-gray-900'
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
@@ -69,11 +69,11 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
           onClick={() => setTrip('oneway')}
           className={`pb-2 text-lg font-semibold ${
             trip === 'oneway'
-              ? 'border-b-2 border-emerald-600 text-gray-900'
+              ? 'border-b-2 border-brand-600 text-gray-900'
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
-          One Way <span className="text-xs font-normal text-gray-400">Including transit</span>
+          One Way
         </button>
       </div>
 
@@ -111,7 +111,7 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
           type="button"
           onClick={search}
           disabled={!canSearch || pending}
-          className="inline-flex w-full max-w-sm items-center justify-center rounded bg-emerald-700 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="inline-flex w-full max-w-sm items-center justify-center rounded bg-brand-700 px-6 py-3 text-base font-semibold text-white hover:bg-brand-800 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           {pending ? <LoadingDots /> : 'Search Flight'}
         </button>

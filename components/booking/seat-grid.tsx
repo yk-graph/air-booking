@@ -37,7 +37,7 @@ export function SeatGrid({
                 {seat && !seat.isTaken ? (
                   <Link
                     href={hrefFor(seatCode)}
-                    className="flex h-10 w-10 items-center justify-center rounded border border-emerald-500 bg-emerald-50 text-xs text-emerald-700 hover:bg-emerald-600 hover:text-white"
+                    className="flex h-10 w-10 items-center justify-center rounded border border-brand-500 bg-brand-50 text-xs text-brand-700 hover:bg-brand-600 hover:text-white"
                   >
                     {seatCode}
                   </Link>

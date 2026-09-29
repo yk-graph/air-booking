@@ -51,7 +51,7 @@ export function BookingSummary({ booking }: { booking: BookingView }) {
 
       <div className="flex items-center justify-between border-t border-gray-200 pt-4">
         <span className="text-lg font-semibold">Total</span>
-        <span className="text-lg font-semibold text-emerald-700">
+        <span className="text-lg font-semibold text-brand-700">
           {formatPrice(booking.totalPrice)}
         </span>
       </div>

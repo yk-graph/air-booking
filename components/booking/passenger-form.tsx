@@ -21,7 +21,7 @@ export type BookingSelection = {
 }
 
 const inputClass =
-  'rounded border border-gray-300 px-3 py-2 focus:border-emerald-600 focus:outline-none'
+  'rounded border border-gray-300 px-3 py-2 focus:border-brand-600 focus:outline-none'
 const labelClass = 'text-sm font-medium text-gray-800'
 
 const countryItems: ComboboxItem[] = countries.map((country) => ({
@@ -204,7 +204,7 @@ export function PassengerForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full max-w-sm self-center rounded bg-emerald-700 px-6 py-3 font-semibold text-white hover:bg-emerald-800 disabled:bg-gray-300"
+        className="w-full max-w-sm self-center rounded bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800 disabled:bg-gray-300"
       >
         {isSubmitting ? 'Processing…' : 'Continue'}
       </button>

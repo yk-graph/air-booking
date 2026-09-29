@@ -24,7 +24,7 @@ export function CabinToggle({
             href={hrefFor(option.value)}
             className={`px-4 py-2 text-sm font-medium ${
               cabin === option.value
-                ? 'bg-emerald-700 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50'
             }`}
           >

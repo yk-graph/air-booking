@@ -79,7 +79,7 @@ export function HeroCarousel() {
             type="button"
             aria-label={`Go to slide ${i + 1}`}
             onClick={() => setIndex(i)}
-            className={`h-1.5 rounded-full transition-all ${i === index ? 'w-8 bg-emerald-600' : 'w-4 bg-white/80 hover:bg-white'}`}
+            className={`h-1.5 rounded-full transition-all ${i === index ? 'w-8 bg-brand-600' : 'w-4 bg-white/80 hover:bg-white'}`}
           />
         ))}
       </div>
