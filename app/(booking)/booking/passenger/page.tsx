@@ -4,7 +4,7 @@ import { BookingHeader } from '@/components/booking/booking-header'
 import { PassengerForm } from '@/components/booking/passenger-form'
 import { getCurrentAccount } from '@/lib/auth/session'
 import { getFlightForDate } from '@/lib/flights/flights'
-import { cabinAddPrice } from '@/lib/flights/seat-map'
+import { cabinAddPrice } from '@/constants/cabin'
 import { CabinClass } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 

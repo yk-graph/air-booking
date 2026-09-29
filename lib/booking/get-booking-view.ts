@@ -1,6 +1,7 @@
 import 'server-only'
 
-import { airportTimeZones, formatZonedDateTime } from '@/lib/flights/airport-timezones'
+import { airportTimeZones } from '@/constants/airport-timezones'
+import { formatZonedDateTime } from '@/lib/flights/airport-timezones'
 import { CabinClass } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 

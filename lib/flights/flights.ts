@@ -1,8 +1,9 @@
 import 'server-only'
 
+import { airportTimeZones } from '@/constants/airport-timezones'
 import { prisma } from '@/lib/prisma'
 
-import { airportTimeZones, zonedDateKey } from './airport-timezones'
+import { zonedDateKey } from './airport-timezones'
 import { routeCode } from './routes'
 
 export type FlightForDate = {

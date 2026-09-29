@@ -3,7 +3,7 @@ import { FlightSearch } from '@/components/home/flight-search'
 import { HeroCarousel } from '@/components/home/hero-carousel'
 import { SiteHeader } from '@/components/layout/site-header'
 import { getCurrentAccount } from '@/lib/auth/session'
-import { airports } from '@/lib/flights/airports'
+import { airports } from '@/constants/airports'
 
 const sortedAirports = [...airports].sort((a, b) => a.city.localeCompare(b.city))
 

@@ -2,9 +2,16 @@ import 'dotenv/config'
 
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-import { airportTimeZones } from '../lib/flights/airport-timezones'
-import { airports } from '../lib/flights/airports'
-import { routeCode, routes } from '../lib/flights/routes'
+import { airportTimeZones } from '../constants/airport-timezones'
+import { airports } from '../constants/airports'
+import {
+  flightSchedules,
+  scheduleEnd,
+  scheduleStart,
+  type Weekday,
+} from '../constants/flight-schedule'
+import { routes } from '../constants/routes'
+import { routeCode } from '../lib/flights/routes'
 import { PrismaClient } from '../lib/generated/prisma/client'
 
 const databaseUrl = process.env.DATABASE_URL
@@ -15,201 +22,6 @@ if (!databaseUrl) {
 const adapter = new PrismaMariaDb(databaseUrl)
 const prisma = new PrismaClient({ adapter })
 
-type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6
-
-type FlightSchedule = {
-  flightNumber: string
-  originCode: string
-  destinationCode: string
-  departureLocal: string
-  arrivalLocal: string
-  arrivalDayOffset: number
-  durationMinutes: number
-  days: Weekday[] | 'daily'
-  basePrice: number
-}
-
-const flightSchedules: FlightSchedule[] = [
-  {
-    flightNumber: 'ZG045',
-    originCode: 'NRT',
-    destinationCode: 'ICN',
-    departureLocal: '08:55',
-    arrivalLocal: '11:25',
-    arrivalDayOffset: 0,
-    durationMinutes: 150,
-    days: 'daily',
-    basePrice: 350,
-  },
-  {
-    flightNumber: 'ZG051',
-    originCode: 'NRT',
-    destinationCode: 'BKK',
-    departureLocal: '17:00',
-    arrivalLocal: '22:15',
-    arrivalDayOffset: 0,
-    durationMinutes: 435,
-    days: 'daily',
-    basePrice: 700,
-  },
-  {
-    flightNumber: 'ZG053',
-    originCode: 'NRT',
-    destinationCode: 'SIN',
-    departureLocal: '16:50',
-    arrivalLocal: '23:00',
-    arrivalDayOffset: 0,
-    durationMinutes: 430,
-    days: 'daily',
-    basePrice: 720,
-  },
-  {
-    flightNumber: 'ZG061',
-    originCode: 'NRT',
-    destinationCode: 'KUL',
-    departureLocal: '16:50',
-    arrivalLocal: '23:40',
-    arrivalDayOffset: 0,
-    durationMinutes: 470,
-    days: 'daily',
-    basePrice: 720,
-  },
-  {
-    flightNumber: 'ZG002',
-    originCode: 'NRT',
-    destinationCode: 'HNL',
-    departureLocal: '19:10',
-    arrivalLocal: '07:50',
-    arrivalDayOffset: 0,
-    durationMinutes: 460,
-    days: [0, 2, 5],
-    basePrice: 800,
-  },
-  {
-    flightNumber: 'ZG022',
-    originCode: 'NRT',
-    destinationCode: 'YVR',
-    departureLocal: '16:00',
-    arrivalLocal: '08:30',
-    arrivalDayOffset: 0,
-    durationMinutes: 570,
-    days: [1, 3, 5, 6],
-    basePrice: 900,
-  },
-  {
-    flightNumber: 'ZG026',
-    originCode: 'NRT',
-    destinationCode: 'SFO',
-    departureLocal: '21:25',
-    arrivalLocal: '13:35',
-    arrivalDayOffset: 0,
-    durationMinutes: 550,
-    days: 'daily',
-    basePrice: 950,
-  },
-  {
-    flightNumber: 'ZG024',
-    originCode: 'NRT',
-    destinationCode: 'LAX',
-    departureLocal: '14:45',
-    arrivalLocal: '07:30',
-    arrivalDayOffset: 0,
-    durationMinutes: 585,
-    days: 'daily',
-    basePrice: 950,
-  },
-  {
-    flightNumber: 'ZG046',
-    originCode: 'ICN',
-    destinationCode: 'NRT',
-    departureLocal: '12:55',
-    arrivalLocal: '15:30',
-    arrivalDayOffset: 0,
-    durationMinutes: 155,
-    days: 'daily',
-    basePrice: 350,
-  },
-  {
-    flightNumber: 'ZG052',
-    originCode: 'BKK',
-    destinationCode: 'NRT',
-    departureLocal: '23:10',
-    arrivalLocal: '07:30',
-    arrivalDayOffset: 1,
-    durationMinutes: 380,
-    days: 'daily',
-    basePrice: 700,
-  },
-  {
-    flightNumber: 'ZG054',
-    originCode: 'SIN',
-    destinationCode: 'NRT',
-    departureLocal: '00:40',
-    arrivalLocal: '08:30',
-    arrivalDayOffset: 0,
-    durationMinutes: 410,
-    days: 'daily',
-    basePrice: 720,
-  },
-  {
-    flightNumber: 'ZG062',
-    originCode: 'KUL',
-    destinationCode: 'NRT',
-    departureLocal: '01:10',
-    arrivalLocal: '09:00',
-    arrivalDayOffset: 0,
-    durationMinutes: 410,
-    days: 'daily',
-    basePrice: 720,
-  },
-  {
-    flightNumber: 'ZG001',
-    originCode: 'HNL',
-    destinationCode: 'NRT',
-    departureLocal: '09:10',
-    arrivalLocal: '13:15',
-    arrivalDayOffset: 1,
-    durationMinutes: 545,
-    days: [0, 2, 5],
-    basePrice: 800,
-  },
-  {
-    flightNumber: 'ZG021',
-    originCode: 'YVR',
-    destinationCode: 'NRT',
-    departureLocal: '10:30',
-    arrivalLocal: '12:45',
-    arrivalDayOffset: 1,
-    durationMinutes: 555,
-    days: [1, 3, 5, 6],
-    basePrice: 900,
-  },
-  {
-    flightNumber: 'ZG025',
-    originCode: 'SFO',
-    destinationCode: 'NRT',
-    departureLocal: '16:45',
-    arrivalLocal: '20:00',
-    arrivalDayOffset: 1,
-    durationMinutes: 675,
-    days: 'daily',
-    basePrice: 950,
-  },
-  {
-    flightNumber: 'ZG023',
-    originCode: 'LAX',
-    destinationCode: 'NRT',
-    departureLocal: '10:25',
-    arrivalLocal: '14:10',
-    arrivalDayOffset: 1,
-    durationMinutes: 705,
-    days: 'daily',
-    basePrice: 950,
-  },
-]
-
-const scheduleStart = { year: 2026, month: 10, day: 1 }
-const scheduleEnd = { year: 2026, month: 12, day: 31 }
 const dayMs = 24 * 60 * 60 * 1000
 
 function timeZoneOffsetMs(timeZone: string, instant: Date): number {
@@ -256,9 +68,7 @@ function zonedWallTimeToUtc(
   return new Date(utc)
 }
 
-async function seedFlightMaps(
-  airportIdByCode: Map<string, string>,
-): Promise<Map<string, string>> {
+async function seedFlightMaps(airportIdByCode: Map<string, string>): Promise<Map<string, string>> {
   const idByCode = new Map<string, string>()
   for (const route of routes) {
     const originAirportId = airportIdByCode.get(route.originCode)

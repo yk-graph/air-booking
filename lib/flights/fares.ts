@@ -1,13 +1,12 @@
 import 'server-only'
 
+import { airportTimeZones } from '@/constants/airport-timezones'
+import { cabinAddPrice } from '@/constants/cabin'
 import type { CabinClass } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 
-import { airportTimeZones, zonedDateKey } from './airport-timezones'
+import { zonedDateKey } from './airport-timezones'
 import { routeCode } from './routes'
-import { cabinAddPrice } from './seat-map'
-
-export const scheduleMonths = ['2026-10', '2026-11', '2026-12']
 
 export type DailyFare = {
   date: string
