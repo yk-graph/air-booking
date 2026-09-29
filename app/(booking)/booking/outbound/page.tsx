@@ -6,11 +6,11 @@ import { CabinToggle } from '@/components/booking/cabin-toggle'
 import { DateCalendar } from '@/components/booking/date-calendar'
 import { Icon } from '@/components/ui/icon'
 import { airportTimeZones } from '@/constants/airport-timezones'
+import { airports } from '@/constants/airports'
 import { zonedDateKey } from '@/lib/flights/airport-timezones'
 import { getMonthlyFares } from '@/lib/flights/fares'
 import { getScheduleMonths } from '@/lib/flights/schedule'
 import { CabinClass } from '@/lib/generated/prisma/enums'
-import { prisma } from '@/lib/prisma'
 
 type SearchParams = {
   from?: string
@@ -36,10 +36,6 @@ export default async function OutboundPage({
   const scheduleMonths = getScheduleMonths()
   const month = scheduleMonths.includes(params.month ?? '') ? params.month! : scheduleMonths[0]
 
-  const airports = await prisma.airport.findMany({
-    where: { code: { in: [from, to] } },
-    select: { code: true, city: true },
-  })
   const fromAirport = airports.find((airport) => airport.code === from)
   const toAirport = airports.find((airport) => airport.code === to)
   if (!fromAirport || !toAirport) redirect('/')

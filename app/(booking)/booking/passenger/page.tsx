@@ -2,11 +2,11 @@ import { redirect } from 'next/navigation'
 
 import { BookingHeader } from '@/components/booking/booking-header'
 import { PassengerForm } from '@/components/booking/passenger-form'
+import { airports } from '@/constants/airports'
+import { cabinAddPrice } from '@/constants/cabin'
 import { getCurrentAccount } from '@/lib/auth/session'
 import { getFlightForDate } from '@/lib/flights/flights'
-import { cabinAddPrice } from '@/constants/cabin'
 import { CabinClass } from '@/lib/generated/prisma/enums'
-import { prisma } from '@/lib/prisma'
 
 type SearchParams = {
   from?: string
@@ -47,11 +47,7 @@ export default async function PassengerPage({
   const seatRet = params.seatRet
   if (trip === 'round' && (!returnDate || !seatRet)) redirect('/')
 
-  const [airports, account, outboundFlight, returnFlight] = await Promise.all([
-    prisma.airport.findMany({
-      where: { code: { in: [from, to] } },
-      select: { code: true, city: true },
-    }),
+  const [account, outboundFlight, returnFlight] = await Promise.all([
     getCurrentAccount(),
     getFlightForDate(from, to, depart),
     trip === 'round' && returnDate ? getFlightForDate(to, from, returnDate) : Promise.resolve(null),

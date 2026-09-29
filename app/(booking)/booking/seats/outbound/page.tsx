@@ -4,11 +4,11 @@ import { redirect } from 'next/navigation'
 import { BookingHeader } from '@/components/booking/booking-header'
 import { SeatGrid } from '@/components/booking/seat-grid'
 import { Icon } from '@/components/ui/icon'
+import { airports } from '@/constants/airports'
 import { cabinAddPrice } from '@/constants/cabin'
 import { getFlightForDate } from '@/lib/flights/flights'
 import { getFlightSeatMap } from '@/lib/flights/seats'
 import { CabinClass } from '@/lib/generated/prisma/enums'
-import { prisma } from '@/lib/prisma'
 
 type SearchParams = {
   from?: string
@@ -40,10 +40,6 @@ export default async function OutboundSeatsPage({
   const cabinRet = parseCabin(params.cabinRet)
   const returnDate = params.returnDate
 
-  const airports = await prisma.airport.findMany({
-    where: { code: { in: [from, to] } },
-    select: { code: true, city: true },
-  })
   const fromAirport = airports.find((airport) => airport.code === from)
   const toAirport = airports.find((airport) => airport.code === to)
   if (!fromAirport || !toAirport) redirect('/')
