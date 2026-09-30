@@ -2,10 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import { createBooking } from '@/app/actions/booking'
-import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
+import { ComboboxField } from '@/components/ui/combobox-field'
+import { type ComboboxItem } from '@/components/ui/combobox'
 import { TextField } from '@/components/ui/text-field'
 import { countries } from '@/lib/countries'
 import { passengerSchema, type PassengerInput } from '@/lib/validations/booking'
@@ -21,8 +22,6 @@ export type BookingSelection = {
   seatOut: string
   seatRet?: string
 }
-
-const labelClass = 'text-sm font-medium text-gray-800'
 
 const countryItems: ComboboxItem[] = countries.map((country) => ({
   value: country.name,
@@ -135,10 +134,11 @@ export function PassengerForm({
           registration={register('dateOfBirth')}
           error={errors.dateOfBirth?.message}
         />
-        <CountryField
+        <ComboboxField
           label="Nationality"
           name="nationality"
           control={control}
+          items={countryItems}
           error={errors.nationality?.message}
         />
       </div>
@@ -150,10 +150,11 @@ export function PassengerForm({
           registration={register('passportNumber')}
           error={errors.passportNumber?.message}
         />
-        <CountryField
+        <ComboboxField
           label="Country of Issue"
           name="countryOfIssue"
           control={control}
+          items={countryItems}
           error={errors.countryOfIssue?.message}
         />
       </div>
@@ -183,33 +184,5 @@ export function PassengerForm({
         {isSubmitting ? 'Processing…' : 'Continue'}
       </button>
     </form>
-  )
-}
-
-function CountryField({
-  label,
-  name,
-  control,
-  error,
-}: {
-  label: string
-  name: 'nationality' | 'countryOfIssue'
-  control: ReturnType<typeof useForm<PassengerInput>>['control']
-  error?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className={labelClass}>
-        {label} <span className="text-red-600">*</span>
-      </label>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => (
-          <Combobox value={field.value ?? ''} onChange={field.onChange} items={countryItems} />
-        )}
-      />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
   )
 }
