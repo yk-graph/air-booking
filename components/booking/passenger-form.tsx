@@ -5,8 +5,9 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { createBooking } from '@/app/actions/booking'
-import { ComboboxField } from '@/components/ui/combobox-field'
 import { type ComboboxItem } from '@/components/ui/combobox'
+import { ComboboxField } from '@/components/ui/combobox-field'
+import { PhoneField } from '@/components/ui/phone-field'
 import { TextField } from '@/components/ui/text-field'
 import { countries } from '@/lib/countries'
 import { passengerSchema, type PassengerInput } from '@/lib/validations/booking'
@@ -118,10 +119,11 @@ export function PassengerForm({
           registration={register('contactEmail')}
           error={errors.contactEmail?.message}
         />
-        <TextField
+        <PhoneField
           label="Phone"
           hint="(optional)"
-          registration={register('contactPhone')}
+          name="contactPhone"
+          control={control}
           error={errors.contactPhone?.message}
         />
       </div>
