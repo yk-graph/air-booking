@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `Seat` DROP COLUMN `addPrice`,
+    DROP COLUMN `isBlocked`,
+    ADD COLUMN `status` ENUM('PENDING', 'CONFIRMED') NOT NULL DEFAULT 'PENDING';
+

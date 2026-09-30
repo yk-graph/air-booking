@@ -1,0 +1,93 @@
+import { ArrowRight } from 'lucide-react'
+import { redirect } from 'next/navigation'
+
+import { BookingHeader } from '@/components/booking/booking-header'
+import { CabinToggle } from '@/components/booking/cabin-toggle'
+import { DateCalendar } from '@/components/booking/date-calendar'
+import { Icon } from '@/components/ui/icon'
+import { airportTimeZones } from '@/constants/airport-timezones'
+import { airports } from '@/constants/airports'
+import { zonedDateKey } from '@/lib/flights/airport-timezones'
+import { getMonthlyFares } from '@/lib/flights/fares'
+import { getScheduleMonths } from '@/lib/flights/schedule'
+import { CabinClass } from '@/lib/generated/prisma/enums'
+
+type SearchParams = {
+  from?: string
+  to?: string
+  trip?: string
+  cabinOut?: string
+  month?: string
+}
+
+export default async function OutboundPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const params = await searchParams
+  const from = params.from
+  const to = params.to
+  if (!from || !to) redirect('/')
+
+  const trip = params.trip === 'oneway' ? 'oneway' : 'round'
+  const cabinOut: CabinClass =
+    params.cabinOut === 'BUSINESS' ? CabinClass.BUSINESS : CabinClass.ECONOMY
+  const scheduleMonths = getScheduleMonths()
+  const month = scheduleMonths.includes(params.month ?? '') ? params.month! : scheduleMonths[0]
+
+  const fromAirport = airports.find((airport) => airport.code === from)
+  const toAirport = airports.find((airport) => airport.code === to)
+  if (!fromAirport || !toAirport) redirect('/')
+
+  const fares = await getMonthlyFares(from, to, month, cabinOut)
+  const todayKey = zonedDateKey(new Date(), airportTimeZones[from] ?? 'UTC')
+
+  const base = { from, to, trip }
+  const monthIndex = scheduleMonths.indexOf(month)
+  const prevMonth = monthIndex > 0 ? scheduleMonths[monthIndex - 1] : null
+  const nextMonth = monthIndex < scheduleMonths.length - 1 ? scheduleMonths[monthIndex + 1] : null
+
+  const buildHref = (path: string, extra: Record<string, string>) =>
+    `${path}?${new URLSearchParams({ ...base, ...extra }).toString()}`
+
+  const monthHref = (target: string) => buildHref('/booking/outbound', { cabinOut, month: target })
+  const cabinHref = (target: CabinClass) =>
+    buildHref('/booking/outbound', { cabinOut: target, month })
+  const nextStep = trip === 'round' ? '/booking/return' : '/booking/seats/outbound'
+  const selectHref = (date: string) => buildHref(nextStep, { cabinOut, depart: date })
+
+  return (
+    <div className="min-h-screen bg-white">
+      <BookingHeader
+        backHref="/"
+        fromCity={fromAirport.city}
+        toCity={toAirport.city}
+        trip={trip}
+        activeLeg="outbound"
+      />
+
+      <main className="mx-auto max-w-5xl px-6 py-10">
+        <h1 className="text-3xl font-semibold text-gray-900">Select Date of Outbound Flight</h1>
+        <p className="mt-2 mb-8 flex items-center gap-2 text-gray-500">
+          {fromAirport.city}
+          <Icon icon={ArrowRight} size={18} />
+          {toAirport.city}
+        </p>
+
+        <div className="mb-6 flex items-center justify-end">
+          <CabinToggle cabin={cabinOut} hrefFor={cabinHref} />
+        </div>
+
+        <DateCalendar
+          month={month}
+          fares={fares}
+          minDateKey={todayKey}
+          selectHref={selectHref}
+          prevHref={prevMonth ? monthHref(prevMonth) : null}
+          nextHref={nextMonth ? monthHref(nextMonth) : null}
+        />
+      </main>
+    </div>
+  )
+}

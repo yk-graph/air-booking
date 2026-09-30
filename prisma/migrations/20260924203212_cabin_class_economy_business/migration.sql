@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Seat` MODIFY `cabinClass` ENUM('ECONOMY', 'BUSINESS') NOT NULL DEFAULT 'ECONOMY';
+

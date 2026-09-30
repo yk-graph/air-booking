@@ -23,15 +23,18 @@ enum FlightStatus {
 
 enum CabinClass {
   ECONOMY
-  PREMIUM
   BUSINESS
-  FIRST
 }
 
 enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum SeatStatus {
+  PENDING
+  CONFIRMED
 }
 
 enum TokenType {
@@ -103,30 +106,46 @@ model Airport {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   // has many relations
-  departingFlights Flight[] @relation("origin")
-  arrivingFlights  Flight[] @relation("destination")
+  departingRoutes  FlightMap[] @relation("routeOrigin")
+  arrivingRoutes   FlightMap[] @relation("routeDestination")
+}
+
+model FlightMap {
+  id                   String   @id @default(cuid())
+  code                 String   @unique
+  originAirportId      String
+  destinationAirportId String
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  // has many relations
+  flights              Flight[]
+  // belongs to relations
+  originAirport        Airport  @relation("routeOrigin", fields: [originAirportId], references: [id])
+  destinationAirport   Airport  @relation("routeDestination", fields: [destinationAirportId], references: [id])
+
+  @@unique([originAirportId, destinationAirportId])
 }
 
 model Flight {
-  id                   String       @id @default(cuid())
-  flightNumber         String
-  originAirportId      String
-  destinationAirportId String
-  departureAt          DateTime
-  arrivalAt            DateTime
-  basePrice            Decimal      @db.Decimal(10, 2)
-  status               FlightStatus @default(SCHEDULED)
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
+  id              String       @id @default(cuid())
+  flightNumber    String
+  flightMapId     String
+  departureAt     DateTime
+  arrivalAt       DateTime
+  durationMinutes Int
+  basePrice       Decimal      @db.Decimal(10, 2)
+  status          FlightStatus @default(SCHEDULED)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
   // has many relations
-  seats                Seat[]
-  tickets              Ticket[]
-  // belongs to relations
-  originAirport        Airport      @relation("origin", fields: [originAirportId], references: [id])
-  destinationAirport   Airport      @relation("destination", fields: [destinationAirportId], references: [id])
+  seats           Seat[]
+  tickets         Ticket[]
+  // belongs to relation
+  flightMap       FlightMap    @relation(fields: [flightMapId], references: [id])
 
-  @@index([originAirportId])
-  @@index([destinationAirportId])
+  @@unique([flightNumber, departureAt])
+  @@index([flightMapId])
 }
 
 model Seat {
@@ -135,8 +154,7 @@ model Seat {
   seatRow    Int
   seatColumn String
   cabinClass CabinClass @default(ECONOMY)
-  addPrice   Decimal    @default(0) @db.Decimal(10, 2)
-  isBlocked  Boolean    @default(false)
+  status     SeatStatus @default(PENDING)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   // has one relation
