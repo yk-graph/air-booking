@@ -10,7 +10,6 @@ import { Combobox, type ComboboxItem } from './combobox'
 const dialItems: ComboboxItem[] = dialCodes.map((entry) => ({
   value: entry.code,
   primary: entry.dialCode,
-  secondary: entry.name,
   flagCode: entry.code,
   searchText: `${entry.name} ${entry.dialCode}`,
 }))
@@ -19,7 +18,7 @@ const labelClass = 'text-sm font-medium text-gray-800'
 const inputClass =
   'min-w-0 flex-1 rounded border border-gray-300 px-3 py-2 text-base focus:border-brand-600 focus:outline-none'
 
-const DEFAULT_COUNTRY = 'jp'
+const DEFAULT_COUNTRY = 'ca'
 
 export function PhoneField<T extends FieldValues>({
   label,
@@ -71,7 +70,7 @@ function PhoneInput({
         {hint && <span className="ml-1 font-normal text-gray-400">{hint}</span>}
       </label>
       <div className="flex gap-2">
-        <div className="w-36 shrink-0">
+        <div className="w-28 shrink-0">
           <Combobox
             value={country}
             onChange={(next) => {
@@ -79,6 +78,7 @@ function PhoneInput({
               emit(next, number)
             }}
             items={dialItems}
+            placeholder=""
           />
         </div>
         <input
