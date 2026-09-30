@@ -1,8 +1,7 @@
 import Link from 'next/link'
 
+import { ResetPasswordForm } from '@/components/auth/reset-password-form'
 import { checkPasswordResetToken, type PasswordResetState } from '@/lib/auth/token'
-
-import { ResetPasswordForm } from './reset-password-form'
 
 const ERROR_MESSAGES: Record<Exclude<PasswordResetState, 'valid'>, string> = {
   invalid: 'This reset link is invalid.',
