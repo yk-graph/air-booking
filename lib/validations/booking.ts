@@ -19,27 +19,27 @@ const todayKey = () => new Date().toISOString().slice(0, 10)
 
 export const passengerSchema = z
   .object({
-  firstName: nameField,
-  lastName: nameField,
-  middleName: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-z '-]*$/, { error: 'Use half-width alphabetical characters.' })
-    .optional(),
-  contactEmail: z.email({ error: 'Enter a valid email address.' }).trim(),
-  contactPhone: z
-    .string()
-    .trim()
-    .optional()
-    .refine((value) => !value || isValidPhoneNumber(value), {
-      error: 'Enter a valid phone number.',
-    }),
-  dateOfBirth: requiredDate,
-  nationality: requiredText,
-  passportNumber: passportField,
-  countryOfIssue: requiredText,
-  dateOfIssue: requiredDate,
-  dateOfExpiry: requiredDate,
+    firstName: nameField,
+    lastName: nameField,
+    middleName: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z '-]*$/, { error: 'Use half-width alphabetical characters.' })
+      .optional(),
+    contactEmail: z.email({ error: 'Enter a valid email address.' }).trim(),
+    contactPhone: z
+      .string()
+      .trim()
+      .optional()
+      .refine((value) => !value || isValidPhoneNumber(value), {
+        error: 'Enter a valid phone number.',
+      }),
+    dateOfBirth: requiredDate,
+    nationality: requiredText,
+    passportNumber: passportField,
+    countryOfIssue: requiredText,
+    dateOfIssue: requiredDate,
+    dateOfExpiry: requiredDate,
   })
   .superRefine((data, ctx) => {
     const today = todayKey()
