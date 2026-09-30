@@ -2,11 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { Controller, useForm, type UseFormRegisterReturn } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import { createBooking } from '@/app/actions/booking'
-import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
-import { countries } from '@/lib/countries'
+import { type ComboboxItem } from '@/components/ui/combobox'
+import { ComboboxField } from '@/components/ui/combobox-field'
+import { PhoneField } from '@/components/ui/phone-field'
+import { TextField } from '@/components/ui/text-field'
+import { countries } from '@/lib/intl/countries'
 import { passengerSchema, type PassengerInput } from '@/lib/validations/booking'
 
 export type BookingSelection = {
@@ -21,43 +24,12 @@ export type BookingSelection = {
   seatRet?: string
 }
 
-const inputClass =
-  'rounded border border-gray-300 px-3 py-2 focus:border-brand-600 focus:outline-none'
-const labelClass = 'text-sm font-medium text-gray-800'
-
 const countryItems: ComboboxItem[] = countries.map((country) => ({
   value: country.name,
   primary: country.name,
   flagCode: country.code,
   searchText: country.name,
 }))
-
-function TextField({
-  label,
-  hint,
-  required,
-  type = 'text',
-  registration,
-  error,
-}: {
-  label: string
-  hint?: string
-  required?: boolean
-  type?: string
-  registration: UseFormRegisterReturn
-  error?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={registration.name} className={labelClass}>
-        {label} {required && <span className="text-red-600">*</span>}
-        {hint && <span className="ml-1 font-normal text-gray-400">{hint}</span>}
-      </label>
-      <input id={registration.name} type={type} className={inputClass} {...registration} />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
-  )
-}
 
 export function PassengerForm({
   selection,
@@ -147,10 +119,11 @@ export function PassengerForm({
           registration={register('contactEmail')}
           error={errors.contactEmail?.message}
         />
-        <TextField
+        <PhoneField
           label="Phone"
           hint="(optional)"
-          registration={register('contactPhone')}
+          name="contactPhone"
+          control={control}
           error={errors.contactPhone?.message}
         />
       </div>
@@ -163,10 +136,11 @@ export function PassengerForm({
           registration={register('dateOfBirth')}
           error={errors.dateOfBirth?.message}
         />
-        <CountryField
+        <ComboboxField
           label="Nationality"
           name="nationality"
           control={control}
+          items={countryItems}
           error={errors.nationality?.message}
         />
       </div>
@@ -178,10 +152,11 @@ export function PassengerForm({
           registration={register('passportNumber')}
           error={errors.passportNumber?.message}
         />
-        <CountryField
+        <ComboboxField
           label="Country of Issue"
           name="countryOfIssue"
           control={control}
+          items={countryItems}
           error={errors.countryOfIssue?.message}
         />
       </div>
@@ -211,33 +186,5 @@ export function PassengerForm({
         {isSubmitting ? 'Processing…' : 'Continue'}
       </button>
     </form>
-  )
-}
-
-function CountryField({
-  label,
-  name,
-  control,
-  error,
-}: {
-  label: string
-  name: 'nationality' | 'countryOfIssue'
-  control: ReturnType<typeof useForm<PassengerInput>>['control']
-  error?: string
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className={labelClass}>
-        {label} <span className="text-red-600">*</span>
-      </label>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => (
-          <Combobox value={field.value ?? ''} onChange={field.onChange} items={countryItems} />
-        )}
-      />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
   )
 }

@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react'
 import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
 import { Icon } from '@/components/ui/icon'
 import { LoadingDots } from '@/components/ui/loading-dots'
-import { flagCodeForCountry } from '@/lib/countries'
+import { flagCodeForCountry } from '@/lib/intl/countries'
 import { destinationsFor, originsFor } from '@/lib/flights/routes'
 
 export type AirportOption = {
@@ -96,7 +96,7 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
       <div className="mt-1 flex flex-col gap-3 md:flex-row md:items-center">
         <div className="min-w-0 flex-1">
           <span className={`mb-1 block md:hidden ${labelClass}`}>Origin (Country, Region)</span>
-          <Combobox value={origin} onChange={setOrigin} items={originItems} />
+          <Combobox value={origin} onChange={setOrigin} items={originItems} size="lg" />
         </div>
 
         <button
@@ -113,7 +113,12 @@ export function FlightSearch({ airports }: { airports: AirportOption[] }) {
           <span className={`mb-1 block md:hidden ${labelClass}`}>
             Destination (Country, Region)
           </span>
-          <Combobox value={destination} onChange={setDestination} items={destinationItems} />
+          <Combobox
+            value={destination}
+            onChange={setDestination}
+            items={destinationItems}
+            size="lg"
+          />
         </div>
       </div>
 
