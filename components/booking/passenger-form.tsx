@@ -9,7 +9,7 @@ import { type ComboboxItem } from '@/components/ui/combobox'
 import { ComboboxField } from '@/components/ui/combobox-field'
 import { PhoneField } from '@/components/ui/phone-field'
 import { TextField } from '@/components/ui/text-field'
-import { countries } from '@/lib/countries'
+import { countries } from '@/lib/intl/countries'
 import { passengerSchema, type PassengerInput } from '@/lib/validations/booking'
 
 export type BookingSelection = {

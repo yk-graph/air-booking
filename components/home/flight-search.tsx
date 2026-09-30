@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react'
 import { Combobox, type ComboboxItem } from '@/components/ui/combobox'
 import { Icon } from '@/components/ui/icon'
 import { LoadingDots } from '@/components/ui/loading-dots'
-import { flagCodeForCountry } from '@/lib/countries'
+import { flagCodeForCountry } from '@/lib/intl/countries'
 import { destinationsFor, originsFor } from '@/lib/flights/routes'
 
 export type AirportOption = {

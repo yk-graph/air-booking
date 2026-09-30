@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form'
 
-import { dialCodeFor, dialCodes } from '@/lib/countries'
+import { dialCodeFor, dialCodes } from '@/lib/intl/phone'
 
 import { Combobox, type ComboboxItem } from './combobox'
 
