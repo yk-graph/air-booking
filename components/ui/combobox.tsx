@@ -15,16 +15,26 @@ export type ComboboxItem = {
   searchText: string
 }
 
+export type ComboboxSize = 'sm' | 'base' | 'lg'
+
+const sizeClass: Record<ComboboxSize, string> = {
+  sm: 'px-3 py-1.5 text-sm',
+  base: 'px-3 py-2 text-base',
+  lg: 'px-4 py-4 text-lg',
+}
+
 export function Combobox({
   value,
   onChange,
   items,
   placeholder = 'Type to search',
+  size = 'base',
 }: {
   value: string
   onChange: (value: string) => void
   items: ComboboxItem[]
   placeholder?: string
+  size?: ComboboxSize
 }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState(
@@ -75,7 +85,9 @@ export function Combobox({
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex items-center gap-2 rounded border border-gray-300 px-4 py-4 text-lg focus-within:border-brand-600">
+      <div
+        className={`flex items-center gap-2 rounded border border-gray-300 focus-within:border-brand-600 ${sizeClass[size]}`}
+      >
         {showingSelected && selected?.flagCode && (
           <span className={`fi fi-${selected.flagCode} shrink-0`} />
         )}
