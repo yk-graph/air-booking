@@ -8,6 +8,7 @@ import { routeCode } from './routes'
 
 export type FlightForDate = {
   id: string
+  flightNumber: string
   departureAt: Date
   arrivalAt: Date
   durationMinutes: number
@@ -37,6 +38,7 @@ export async function getFlightForDate(
     },
     select: {
       id: true,
+      flightNumber: true,
       departureAt: true,
       arrivalAt: true,
       durationMinutes: true,
@@ -50,6 +52,7 @@ export async function getFlightForDate(
 
   return {
     id: match.id,
+    flightNumber: match.flightNumber,
     departureAt: match.departureAt,
     arrivalAt: match.arrivalAt,
     durationMinutes: match.durationMinutes,
