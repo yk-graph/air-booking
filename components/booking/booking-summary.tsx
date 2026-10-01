@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 import { Icon } from '@/components/ui/icon'
 import type { BookingView } from '@/lib/booking/get-booking-view'
@@ -7,7 +8,7 @@ function formatPrice(value: number): string {
   return `C$${value.toLocaleString('en-US')}`
 }
 
-export function BookingSummary({ booking }: { booking: BookingView }) {
+export function BookingSummary({ booking, editHref }: { booking: BookingView; editHref?: string }) {
   return (
     <div className="flex flex-col gap-6">
       <section className="rounded-lg border border-gray-200">
@@ -38,7 +39,14 @@ export function BookingSummary({ booking }: { booking: BookingView }) {
       </section>
 
       <section className="rounded-lg border border-gray-200 p-4 text-sm text-gray-700">
-        <h3 className="mb-2 font-semibold text-gray-900">Passenger</h3>
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="font-semibold text-gray-900">Passenger</h3>
+          {editHref && (
+            <Link href={editHref} className="text-sm font-medium text-brand-700 hover:underline">
+              Edit
+            </Link>
+          )}
+        </div>
         <p>{booking.passengerName}</p>
         <p className="text-gray-500">
           {booking.contactEmail}

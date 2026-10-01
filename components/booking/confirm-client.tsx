@@ -60,7 +60,7 @@ export function ConfirmClient({
     <>
       {message && <p className="mb-4 text-sm text-red-600">{message}</p>}
 
-      <BookingSummary booking={booking} />
+      <BookingSummary booking={booking} editHref={`/booking/passenger?${query}`} />
 
       <div className="mt-8 text-center">
         <button
