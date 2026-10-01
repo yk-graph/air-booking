@@ -1,23 +1,31 @@
 import { redirect } from 'next/navigation'
 
-import { confirmBooking } from '@/app/actions/booking'
-import { BookingSummary } from '@/components/booking/booking-summary'
-import { getBookingView } from '@/lib/booking/get-booking-view'
-import { BookingStatus } from '@/lib/generated/prisma/enums'
+import { ConfirmClient } from '@/components/booking/confirm-client'
+import { getSelectionView, parseSelection } from '@/lib/booking/selection'
 
 export default async function ConfirmPage({
   searchParams,
 }: {
-  searchParams: Promise<{ bookingId?: string }>
+  searchParams: Promise<Record<string, string | undefined>>
 }) {
-  const { bookingId } = await searchParams
-  if (!bookingId) redirect('/')
+  const params = await searchParams
+  const selection = parseSelection(params)
+  if (!selection) redirect('/')
 
-  const booking = await getBookingView(bookingId)
-  if (!booking) redirect('/')
-  if (booking.status !== BookingStatus.PENDING) {
-    redirect(`/booking/complete?bookingId=${booking.id}`)
-  }
+  const view = await getSelectionView(selection)
+  if (!view) redirect('/')
+
+  const query = new URLSearchParams({
+    from: selection.from,
+    to: selection.to,
+    trip: selection.trip,
+    cabinOut: selection.cabinOut,
+    depart: selection.depart,
+    seatOut: selection.seatOut,
+    ...(selection.trip === 'round' ? { cabinRet: selection.cabinRet } : {}),
+    ...(selection.returnDate ? { returnDate: selection.returnDate } : {}),
+    ...(selection.seatRet ? { seatRet: selection.seatRet } : {}),
+  }).toString()
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
@@ -26,17 +34,7 @@ export default async function ConfirmPage({
         Please review the details before confirming your reservation.
       </p>
 
-      <BookingSummary booking={booking} />
-
-      <form action={confirmBooking} className="mt-8 text-center">
-        <input type="hidden" name="bookingId" value={booking.id} />
-        <button
-          type="submit"
-          className="w-full max-w-sm rounded bg-brand-700 px-6 py-3 text-base font-semibold text-white hover:bg-brand-800"
-        >
-          Confirm booking
-        </button>
-      </form>
+      <ConfirmClient legs={view.legs} total={view.total} query={query} />
     </main>
   )
 }

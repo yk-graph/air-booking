@@ -5,10 +5,10 @@ import { randomBytes } from 'node:crypto'
 import { redirect } from 'next/navigation'
 import * as z from 'zod'
 
+import { cabinAddPrice } from '@/constants/cabin'
 import { getCurrentAccount } from '@/lib/auth/session'
 import { sendBookingConfirmation } from '@/lib/email/send'
 import { getFlightForDate, type FlightForDate } from '@/lib/flights/flights'
-import { cabinAddPrice } from '@/constants/cabin'
 import { BookingStatus, CabinClass, SeatStatus } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
 import { passengerSchema, type BookingFormState } from '@/lib/validations/booking'
@@ -20,7 +20,7 @@ function parseSeat(code: string | null): { row: number; column: string } | null 
   return { row: Number(match[1]), column: match[2] }
 }
 
-export async function createBooking(
+export async function placeBooking(
   _state: BookingFormState,
   formData: FormData,
 ): Promise<BookingFormState> {
@@ -80,13 +80,14 @@ export async function createBooking(
   const account = await getCurrentAccount()
   const data = parsed.data
   const toDate = (value: string) => new Date(`${value}T00:00:00Z`)
+  const reference = randomBytes(4).toString('hex').toUpperCase()
 
   let bookingId: string
   try {
     const booking = await prisma.$transaction(async (tx) => {
       const created = await tx.booking.create({
         data: {
-          reference: randomBytes(4).toString('hex').toUpperCase(),
+          reference,
           accountId: account?.id ?? null,
           contactEmail: data.contactEmail,
           contactPhone: data.contactPhone ?? null,
@@ -100,6 +101,7 @@ export async function createBooking(
           dateOfIssue: toDate(data.dateOfIssue),
           dateOfExpiry: toDate(data.dateOfExpiry),
           totalPrice,
+          status: BookingStatus.CONFIRMED,
         },
       })
 
@@ -110,6 +112,7 @@ export async function createBooking(
             seatRow: leg.seat.row,
             seatColumn: leg.seat.column,
             cabinClass: leg.cabin,
+            status: SeatStatus.CONFIRMED,
           },
         })
         await tx.ticket.create({
@@ -129,44 +132,15 @@ export async function createBooking(
     if ((error as { code?: string }).code === 'P2002') {
       return { message: 'One of the selected seats was just taken. Please choose another.' }
     }
-    console.error('createBooking failed', error)
+    console.error('placeBooking failed', error)
     return { message: 'Something went wrong. Please try again.' }
   }
 
-  redirect(`/booking/confirm?bookingId=${bookingId}`)
-}
-
-export async function confirmBooking(formData: FormData): Promise<void> {
-  const bookingId = String(formData.get('bookingId') ?? '')
-  if (!bookingId) redirect('/')
-
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId },
-    select: { id: true, status: true, contactEmail: true, reference: true, totalPrice: true },
-  })
-  if (!booking) redirect('/')
-
-  if (booking.status === BookingStatus.PENDING) {
-    await prisma.$transaction([
-      prisma.booking.update({
-        where: { id: booking.id },
-        data: { status: BookingStatus.CONFIRMED },
-      }),
-      prisma.seat.updateMany({
-        where: { ticket: { bookingId: booking.id } },
-        data: { status: SeatStatus.CONFIRMED },
-      }),
-    ])
-
-    try {
-      await sendBookingConfirmation(booking.contactEmail, {
-        reference: booking.reference,
-        totalPrice: Number(booking.totalPrice),
-      })
-    } catch (error) {
-      console.error('booking confirmation email failed', error)
-    }
+  try {
+    await sendBookingConfirmation(data.contactEmail, { reference, totalPrice })
+  } catch (error) {
+    console.error('booking confirmation email failed', error)
   }
 
-  redirect(`/booking/complete?bookingId=${booking.id}`)
+  redirect(`/booking/complete?bookingId=${bookingId}`)
 }

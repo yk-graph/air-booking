@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { BookingSummary } from '@/components/booking/booking-summary'
+import { ClearBookingForm } from '@/components/booking/clear-booking-form'
 import { getBookingView } from '@/lib/booking/get-booking-view'
 
 export default async function CompletePage({
@@ -17,6 +18,7 @@ export default async function CompletePage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
+      <ClearBookingForm />
       <div className="mb-8 rounded-lg border border-brand-200 bg-brand-50 p-6 text-center">
         <h1 className="mb-1 text-2xl font-semibold text-brand-800">Booking confirmed</h1>
         <p className="text-sm text-brand-700">

@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
 
 import type { PassengerInput } from '@/lib/validations/booking'
 
@@ -14,7 +14,7 @@ const BookingFormContext = createContext<BookingFormValue | null>(null)
 
 export function BookingFormProvider({ children }: { children: ReactNode }) {
   const [passenger, setPassenger] = useState<PassengerInput | null>(null)
-  const reset = () => setPassenger(null)
+  const reset = useCallback(() => setPassenger(null), [])
 
   return (
     <BookingFormContext.Provider value={{ passenger, setPassenger, reset }}>

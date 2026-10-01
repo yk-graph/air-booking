@@ -1,10 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { createBooking } from '@/app/actions/booking'
+import { useBookingForm } from '@/components/booking/booking-form-context'
 import { type ComboboxItem } from '@/components/ui/combobox'
 import { ComboboxField } from '@/components/ui/combobox-field'
 import { PhoneField } from '@/components/ui/phone-field'
@@ -38,16 +39,18 @@ export function PassengerForm({
   selection: BookingSelection
   defaultEmail?: string
 }) {
-  const [formMessage, setFormMessage] = useState<string>()
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const { passenger, setPassenger } = useBookingForm()
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<PassengerInput>({
     resolver: zodResolver(passengerSchema),
     mode: 'onBlur',
-    defaultValues: {
+    defaultValues: passenger ?? {
       firstName: '',
       lastName: '',
       middleName: '',
@@ -62,29 +65,28 @@ export function PassengerForm({
     },
   })
 
-  const onSubmit = handleSubmit(async (values) => {
-    setFormMessage(undefined)
-    const formData = new FormData()
-    for (const [key, value] of Object.entries(values)) {
-      if (value) formData.set(key, String(value))
+  const buildQuery = () => {
+    const query: Record<string, string> = {
+      from: selection.from,
+      to: selection.to,
+      trip: selection.trip,
+      cabinOut: selection.cabinOut,
+      depart: selection.depart,
+      seatOut: selection.seatOut,
     }
-    formData.set('from', selection.from)
-    formData.set('to', selection.to)
-    formData.set('trip', selection.trip)
-    formData.set('cabinOut', selection.cabinOut)
-    formData.set('cabinRet', selection.cabinRet)
-    formData.set('depart', selection.depart)
-    if (selection.returnDate) formData.set('returnDate', selection.returnDate)
-    formData.set('seatOut', selection.seatOut)
-    if (selection.seatRet) formData.set('seatRet', selection.seatRet)
+    if (selection.trip === 'round') query.cabinRet = selection.cabinRet
+    if (selection.returnDate) query.returnDate = selection.returnDate
+    if (selection.seatRet) query.seatRet = selection.seatRet
+    return new URLSearchParams(query).toString()
+  }
 
-    const result = await createBooking(undefined, formData)
-    if (result?.message) setFormMessage(result.message)
+  const onSubmit = handleSubmit((values) => {
+    setPassenger(values)
+    startTransition(() => router.push(`/booking/confirm?${buildQuery()}`))
   })
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
-      {formMessage && <p className="text-sm text-red-600">{formMessage}</p>}
       <p className="text-sm font-semibold text-red-600">All items in * are mandatory.</p>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -180,10 +182,10 @@ export function PassengerForm({
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={pending}
         className="w-full max-w-sm self-center rounded bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800 disabled:bg-gray-300"
       >
-        {isSubmitting ? 'Processing…' : 'Continue'}
+        {pending ? 'Processing…' : 'Continue'}
       </button>
     </form>
   )
