@@ -5,13 +5,16 @@ import { randomBytes } from 'node:crypto'
 import { redirect } from 'next/navigation'
 import * as z from 'zod'
 
+import { airports } from '@/constants/airports'
 import { cabinAddPrice } from '@/constants/cabin'
 import { getCurrentAccount } from '@/lib/auth/session'
-import { sendBookingConfirmation } from '@/lib/email/send'
 import { getFlightForDate, type FlightForDate } from '@/lib/flights/flights'
-import { BookingStatus, CabinClass, SeatStatus } from '@/lib/generated/prisma/enums'
+import { CabinClass, PaymentStatus, SeatStatus } from '@/lib/generated/prisma/enums'
 import { prisma } from '@/lib/prisma'
+import { stripe } from '@/lib/stripe/client'
 import { passengerSchema, type BookingFormState } from '@/lib/validations/booking'
+
+const HOLD_MINUTES = 30
 
 function parseSeat(code: string | null): { row: number; column: string } | null {
   if (!code) return null
@@ -20,7 +23,11 @@ function parseSeat(code: string | null): { row: number; column: string } | null 
   return { row: Number(match[1]), column: match[2] }
 }
 
-export async function placeBooking(
+function cityFor(code: string): string {
+  return airports.find((airport) => airport.code === code)?.city ?? code
+}
+
+export async function startCheckout(
   _state: BookingFormState,
   formData: FormData,
 ): Promise<BookingFormState> {
@@ -68,9 +75,11 @@ export async function placeBooking(
     flight: FlightForDate
     seat: { row: number; column: string }
     cabin: CabinClass
-  }[] = [{ flight: outboundFlight, seat: seatOut, cabin: cabinOut }]
+    from: string
+    to: string
+  }[] = [{ flight: outboundFlight, seat: seatOut, cabin: cabinOut, from, to }]
   if (trip === 'round' && returnFlight && seatRet) {
-    legs.push({ flight: returnFlight, seat: seatRet, cabin: cabinRet })
+    legs.push({ flight: returnFlight, seat: seatRet, cabin: cabinRet, from: to, to: from })
   }
 
   const totalPrice = legs.reduce(
@@ -81,6 +90,7 @@ export async function placeBooking(
   const data = parsed.data
   const toDate = (value: string) => new Date(`${value}T00:00:00Z`)
   const reference = randomBytes(4).toString('hex').toUpperCase()
+  const expiresAt = new Date(Date.now() + HOLD_MINUTES * 60 * 1000)
 
   let bookingId: string
   try {
@@ -101,7 +111,7 @@ export async function placeBooking(
           dateOfIssue: toDate(data.dateOfIssue),
           dateOfExpiry: toDate(data.dateOfExpiry),
           totalPrice,
-          status: BookingStatus.CONFIRMED,
+          expiresAt,
         },
       })
 
@@ -112,7 +122,7 @@ export async function placeBooking(
             seatRow: leg.seat.row,
             seatColumn: leg.seat.column,
             cabinClass: leg.cabin,
-            status: SeatStatus.CONFIRMED,
+            status: SeatStatus.PENDING,
           },
         })
         await tx.ticket.create({
@@ -132,15 +142,63 @@ export async function placeBooking(
     if ((error as { code?: string }).code === 'P2002') {
       return { message: 'One of the selected seats was just taken. Please choose another.' }
     }
-    console.error('placeBooking failed', error)
+    console.error('startCheckout: booking creation failed', error)
     return { message: 'Something went wrong. Please try again.' }
   }
 
+  const appUrl = process.env.APP_URL ?? 'http://localhost:3000'
+  const cancelQuery = new URLSearchParams({
+    from,
+    to,
+    trip,
+    cabinOut,
+    depart,
+    seatOut: `${seatOut.row}${seatOut.column}`,
+    ...(trip === 'round' ? { cabinRet } : {}),
+    ...(returnDate ? { returnDate } : {}),
+    ...(seatRet ? { seatRet: `${seatRet.row}${seatRet.column}` } : {}),
+  }).toString()
+
+  let sessionUrl: string
   try {
-    await sendBookingConfirmation(data.contactEmail, { reference, totalPrice })
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: legs.map((leg) => ({
+        quantity: 1,
+        price_data: {
+          currency: 'cad',
+          unit_amount: Math.round((leg.flight.basePrice + cabinAddPrice[leg.cabin]) * 100),
+          product_data: {
+            name: `${cityFor(leg.from)} → ${cityFor(leg.to)} ${leg.flight.flightNumber}`,
+          },
+        },
+      })),
+      metadata: { bookingId },
+      expires_at: Math.floor(expiresAt.getTime() / 1000),
+      success_url: `${appUrl}/booking/complete?bookingId=${bookingId}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/booking/confirm?${cancelQuery}`,
+    })
+
+    if (!session.url) throw new Error('Stripe session has no URL')
+
+    await prisma.payment.create({
+      data: {
+        bookingId,
+        stripeCheckoutSessionId: session.id,
+        stripePaymentIntentId:
+          typeof session.payment_intent === 'string' ? session.payment_intent : null,
+        amount: Math.round(totalPrice * 100),
+        currency: 'cad',
+        status: PaymentStatus.PENDING,
+      },
+    })
+
+    sessionUrl = session.url
   } catch (error) {
-    console.error('booking confirmation email failed', error)
+    console.error('startCheckout: stripe session failed', error)
+    await prisma.booking.delete({ where: { id: bookingId } }).catch(() => {})
+    return { message: 'Could not start payment. Please try again.' }
   }
 
-  redirect(`/booking/complete?bookingId=${bookingId}`)
+  redirect(sessionUrl)
 }

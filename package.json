@@ -29,6 +29,7 @@
     "react-hook-form": "^7.89.0",
     "resend": "^6.28.1",
     "server-only": "^0.0.1",
+    "stripe": "^23.0.0",
     "world-countries": "^5.1.0",
     "zod": "^4.6.5"
   },

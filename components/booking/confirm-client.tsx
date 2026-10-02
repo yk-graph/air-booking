@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 
-import { placeBooking } from '@/app/actions/booking'
+import { startCheckout } from '@/app/actions/booking'
 import { useBookingForm } from '@/components/booking/booking-form-context'
 import { BookingSummary } from '@/components/booking/booking-summary'
 import type { BookingView, LegView } from '@/lib/booking/get-booking-view'
@@ -53,7 +53,7 @@ export function ConfirmClient({
         if (value) formData.set(key, String(value))
       }
       new URLSearchParams(query).forEach((value, key) => formData.set(key, value))
-      const result = await placeBooking(undefined, formData)
+      const result = await startCheckout(undefined, formData)
       if (result?.message) setMessage(result.message)
     })
   }
