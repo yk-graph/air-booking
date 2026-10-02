@@ -43,6 +43,11 @@ export default async function ConfirmPage({
     ...(selection.returnDate ? { returnDate: selection.returnDate } : {}),
   }).toString()
 
+  const legEditHrefs =
+    selection.trip === 'round'
+      ? [`/booking/outbound?${dateQuery}`, `/booking/return?${dateQuery}`]
+      : [`/booking/outbound?${dateQuery}`]
+
   return (
     <>
       <BookingHeader
@@ -51,6 +56,7 @@ export default async function ConfirmPage({
         toCity={toAirport.city}
         trip={selection.trip}
         activeLeg="return"
+        highlightActive={false}
         outboundDate={selection.depart}
         returnDate={selection.returnDate}
         totalLabel={`C$${view.total.toLocaleString('en-US')}`}
@@ -64,7 +70,12 @@ export default async function ConfirmPage({
           Please review the details before confirming your reservation.
         </p>
 
-        <ConfirmClient legs={view.legs} total={view.total} query={query} />
+        <ConfirmClient
+          legs={view.legs}
+          total={view.total}
+          query={query}
+          legEditHrefs={legEditHrefs}
+        />
       </main>
     </>
   )

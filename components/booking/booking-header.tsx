@@ -25,6 +25,7 @@ export function BookingHeader({
   totalLabel,
   outboundHref,
   returnHref,
+  highlightActive = true,
 }: {
   backHref: string
   fromCity: string
@@ -36,6 +37,7 @@ export function BookingHeader({
   totalLabel?: string
   outboundHref?: string
   returnHref?: string
+  highlightActive?: boolean
 }) {
   return (
     <div className="border-b border-gray-200">
@@ -48,7 +50,8 @@ export function BookingHeader({
           from={fromCity}
           to={toCity}
           date={outboundDate}
-          active={activeLeg === 'outbound'}
+          active={highlightActive ? activeLeg === 'outbound' : true}
+          showUnderline={highlightActive}
           href={outboundHref}
         />
 
@@ -59,7 +62,8 @@ export function BookingHeader({
               from={toCity}
               to={fromCity}
               date={returnDate}
-              active={activeLeg === 'return'}
+              active={highlightActive ? activeLeg === 'return' : true}
+              showUnderline={highlightActive}
               href={returnHref}
             />
           </>
@@ -78,16 +82,18 @@ function Leg({
   to,
   date,
   active,
+  showUnderline = true,
   href,
 }: {
   from: string
   to: string
   date?: string
   active: boolean
+  showUnderline?: boolean
   href?: string
 }) {
   const content = (
-    <div className={active ? 'border-b-2 border-brand-600 pb-1' : 'pb-1'}>
+    <div className={active && showUnderline ? 'border-b-2 border-brand-600 pb-1' : 'pb-1'}>
       <div
         className={`flex items-center gap-1 text-sm font-semibold ${active ? 'text-gray-900' : 'text-gray-400'}`}
       >

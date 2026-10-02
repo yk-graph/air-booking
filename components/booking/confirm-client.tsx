@@ -12,10 +12,12 @@ export function ConfirmClient({
   legs,
   total,
   query,
+  legEditHrefs,
 }: {
   legs: LegView[]
   total: number
   query: string
+  legEditHrefs: string[]
 }) {
   const router = useRouter()
   const { passenger } = useBookingForm()
@@ -60,7 +62,11 @@ export function ConfirmClient({
     <>
       {message && <p className="mb-4 text-sm text-red-600">{message}</p>}
 
-      <BookingSummary booking={booking} editHref={`/booking/passenger?${query}`} />
+      <BookingSummary
+        booking={booking}
+        editHref={`/booking/passenger?${query}`}
+        legEditHrefs={legEditHrefs}
+      />
 
       <div className="mt-8 text-center">
         <button

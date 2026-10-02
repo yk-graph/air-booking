@@ -8,7 +8,15 @@ function formatPrice(value: number): string {
   return `C$${value.toLocaleString('en-US')}`
 }
 
-export function BookingSummary({ booking, editHref }: { booking: BookingView; editHref?: string }) {
+export function BookingSummary({
+  booking,
+  editHref,
+  legEditHrefs,
+}: {
+  booking: BookingView
+  editHref?: string
+  legEditHrefs?: string[]
+}) {
   return (
     <div className="flex flex-col gap-6">
       <section className="rounded-lg border border-gray-200">
@@ -33,7 +41,17 @@ export function BookingSummary({ booking, editHref }: { booking: BookingView; ed
                 Seat {leg.seat} · {leg.cabin}
               </div>
             </div>
-            <div className="text-sm font-medium text-gray-900">{formatPrice(leg.price)}</div>
+            <div className="flex flex-col items-end gap-1">
+              {legEditHrefs?.[i] && (
+                <Link
+                  href={legEditHrefs[i]}
+                  className="text-sm font-medium text-brand-700 hover:underline"
+                >
+                  Edit
+                </Link>
+              )}
+              <span className="text-sm font-medium text-gray-900">{formatPrice(leg.price)}</span>
+            </div>
           </div>
         ))}
       </section>
