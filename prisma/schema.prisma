@@ -37,25 +37,34 @@ enum SeatStatus {
   CONFIRMED
 }
 
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
 enum TokenType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
 }
 
 model Account {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  passwordHash    String
-  role            Role      @default(USER)
-  emailVerifiedAt DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  role             Role      @default(USER)
+  emailVerifiedAt  DateTime?
+  stripeCustomerId String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   // has many relations
-  bookings        Booking[]
-  sessions        Session[]
-  tokens          Token[]
+  bookings         Booking[]
+  sessions         Session[]
+  tokens           Token[]
   // has one relation
-  staff           Staff?
+  staff            Staff?
 }
 
 model Session {
@@ -98,16 +107,16 @@ model Staff {
 }
 
 model Airport {
-  id               String   @id @default(cuid())
-  code             String   @unique
-  name             String
-  city             String
-  country          String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String      @id @default(cuid())
+  code            String      @unique
+  name            String
+  city            String
+  country         String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   // has many relations
-  departingRoutes  FlightMap[] @relation("routeOrigin")
-  arrivingRoutes   FlightMap[] @relation("routeDestination")
+  departingRoutes FlightMap[] @relation("routeOrigin")
+  arrivingRoutes  FlightMap[] @relation("routeDestination")
 }
 
 model FlightMap {
@@ -182,10 +191,12 @@ model Booking {
   dateOfExpiry   DateTime?
   status         BookingStatus @default(PENDING)
   totalPrice     Decimal       @db.Decimal(10, 2)
+  expiresAt      DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   // has many relations
   tickets        Ticket[]
+  payments       Payment[]
   // belongs to relation
   account        Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
 
@@ -207,4 +218,27 @@ model Ticket {
 
   @@index([flightId])
   @@index([bookingId])
+}
+
+model Payment {
+  id                      String        @id @default(cuid())
+  bookingId               String
+  stripeCheckoutSessionId String        @unique
+  stripePaymentIntentId   String?       @unique
+  amount                  Int
+  currency                String        @default("cad")
+  status                  PaymentStatus @default(PENDING)
+  receiptUrl              String?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  // belongs to relation
+  booking                 Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+}
+
+model StripeEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
 }
