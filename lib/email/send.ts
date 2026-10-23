@@ -3,7 +3,7 @@ import 'server-only'
 import { createEmailVerificationToken, createPasswordResetToken } from '@/lib/auth/token'
 import { EMAIL_FROM, resend } from '@/lib/email/resend'
 
-const APP_URL = process.env.APP_URL ?? 'http://localhost:3000'
+const APP_URL = process.env.APP_URL ?? 'http://localhost:4220'
 
 export async function sendAccountVerification(accountId: string, email: string): Promise<void> {
   const token = await createEmailVerificationToken(accountId)

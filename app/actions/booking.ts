@@ -146,7 +146,7 @@ export async function startCheckout(
     return { message: 'Something went wrong. Please try again.' }
   }
 
-  const appUrl = process.env.APP_URL ?? 'http://localhost:3000'
+  const appUrl = process.env.APP_URL ?? 'http://localhost:4220'
   const cancelQuery = new URLSearchParams({
     from,
     to,
