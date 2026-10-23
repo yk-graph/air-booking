@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { verifyEmail, VerifyResult } from '@/lib/auth/token'
 
-const APP_URL = process.env.APP_URL ?? 'http://localhost:3000'
+const APP_URL = process.env.APP_URL ?? 'http://localhost:4220'
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token')
