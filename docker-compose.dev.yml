@@ -12,6 +12,11 @@ services:
     volumes:
       - air-booking-dev-mysql-data:/var/lib/mysql
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-ppassword']
       interval: 5s
