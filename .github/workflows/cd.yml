@@ -87,3 +87,26 @@ jobs:
 
       - name: Clean up dangling images
         run: docker image prune -f
+
+  cleanup:
+    name: Clean up old GHCR images
+    needs: deploy
+    runs-on: ubuntu-latest
+    # Never run two cleanups against the same packages at once (staging and main deploys can overlap)
+    concurrency:
+      group: ghcr-cleanup
+      cancel-in-progress: false
+    permissions:
+      packages: write
+
+    steps:
+      - name: Delete untagged images
+        # Pinned to v1.2.2 because this third-party action gets packages: write
+        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f
+        with:
+          packages: air-booking-web,air-booking-migrator
+          # Removes images no tag points to; children of :latest / :staging (platform image, attestation) are kept
+          delete-untagged: true
+          validate: true
+          # Check the log on the first run, then set to false
+          dry-run: true
