@@ -3,7 +3,7 @@ name: air-booking-dev
 services:
   db-dev:
     image: mysql:8.4
-    container_name: air-booking-dev-db
+    container_name: air-booking-db-dev
     ports:
       - '127.0.0.1:4229:3306'
     environment:

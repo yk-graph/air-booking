@@ -51,6 +51,8 @@ services:
     depends_on:
       db-prod:
         condition: service_healthy
+      migrate-prod:
+        condition: service_completed_successfully
     restart: unless-stopped
     logging:
       driver: json-file
