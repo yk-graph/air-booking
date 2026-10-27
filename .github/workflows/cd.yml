@@ -85,13 +85,11 @@ jobs:
             git switch staging
             git pull origin staging
             docker compose -f docker-compose.stg.yml pull
-            docker compose -f docker-compose.stg.yml run --rm migrate-stg
             docker compose -f docker-compose.stg.yml up -d web-stg
           elif [ "${{ github.ref_name }}" = "main" ]; then
             git switch main
             git pull origin main
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml run --rm migrate-prod
             docker compose -f docker-compose.prod.yml up -d web-prod
           fi
 
