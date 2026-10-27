@@ -116,5 +116,3 @@ jobs:
           # Removes images no tag points to; children of :latest / :staging (platform image, attestation) are kept
           delete-untagged: true
           validate: true
-          # Check the log on the first run, then set to false
-          dry-run: true
