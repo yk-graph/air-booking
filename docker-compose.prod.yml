@@ -1,9 +1,11 @@
+name: air-booking-prod
+
 services:
   db-prod:
     image: mysql:8.4
     container_name: air-booking-db-prod
     ports:
-      - '127.0.0.1:4290:3306'
+      - '127.0.0.1:4209:3306'
     env_file:
       - .env.production
     environment:
@@ -11,6 +13,11 @@ services:
     volumes:
       - air-booking-prod-mysql-data:/var/lib/mysql
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h localhost -p"$$MYSQL_ROOT_PASSWORD"']
       interval: 5s
@@ -26,12 +33,17 @@ services:
       db-prod:
         condition: service_healthy
     restart: 'no'
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
 
   web-prod:
     image: ghcr.io/yk-graph/air-booking-web:latest
     container_name: air-booking-web-prod
     ports:
-      - '4200:4000'
+      - '127.0.0.1:4200:4000'
     env_file:
       - .env.production
     environment:
@@ -39,7 +51,14 @@ services:
     depends_on:
       db-prod:
         condition: service_healthy
+      migrate-prod:
+        condition: service_completed_successfully
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
 
 volumes:
   air-booking-prod-mysql-data:
